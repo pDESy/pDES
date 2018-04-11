@@ -2,7 +2,7 @@
 "pDES" is a project design tool by using Discrete-Event Simulation.
 
 ## Description
-This software can evaluate a project including product structure, workflow and organization structure by using discrete event simulation. We can define a complex project considering relationship between each component, each task and each team and workers easily by using the interface of pDES. 
+This software can evaluate a project including product structure, workflow and organization structure by using discrete event simulation. We can define a complex project considering relationship between each component, each task and each team and workers easily by using the interface of pDES.
 
 Application examples of pDES are as followings:
 - Engineering design project
@@ -30,7 +30,7 @@ Update soon...
 		- Eclipse Graphical Editing Framework (GEF3)
 			- From Eclipse 4.7 (Oxygen), GEF3 is already installed initially.
 
-1. Fork it ([http://github.com/taiga4112/pDES/fork](http://github.com/taiga4112/pDES/fork)).
+1. Fork it ([http://github.com/mitsuyukiLab/pDES/fork](http://github.com/mitsuyukiLab/pDES/fork)).
 
 2. Clone pDES project.
 	```bash
@@ -45,11 +45,16 @@ Update soon...
 	- Right click on pDES project on Explorer -> Run as -> Eclipse Application
 
 ## Contribution
-1. Fork it ( http://github.com/taiga4112/pDES/fork )
+1. Fork it ( http://github.com/mitsuyukiLab/pDES/fork )
 2. Create your feature branch (git checkout -b my-new-feature)
 3. Commit your changes (git commit -am 'Add some feature')
 4. Push to the branch (git push origin my-new-feature)
 5. Create new Pull Request
+
+If you want to join this project as a researcher, please contact me.
+
+[mitsuyuki-taiga-my  at-mark  ynu.ac.jp]
+
 
 ## Author
 
