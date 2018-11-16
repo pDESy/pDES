@@ -40,9 +40,9 @@ public class TaskNode extends NodeElement {
 	
 	////////////////Variables//////////////////////////////////////////////////////////
 	private String name = "";
-	private int workAmount;
+	private double workAmount;
 	private double progress;
-	private int additionalWorkAmount; //Additional work amount if the amount of error exceeds the limit.
+	private double additionalWorkAmount; //Additional work amount if the amount of error exceeds the limit.
 	private boolean needFacility; //Need facility or not
 	//////////////////////////////////////////////////////////////////////////////////
 	
@@ -80,7 +80,7 @@ public class TaskNode extends NodeElement {
 	 * Get the work amount of TaskNode.
 	 * @return the workAmount
 	 */
-	public int getWorkAmount() {
+	public double getWorkAmount() {
 		return workAmount;
 	}
 	
@@ -97,8 +97,8 @@ public class TaskNode extends NodeElement {
 	 * Set the work amount of TaskNode.
 	 * @param workAmount the workAmount to set
 	 */
-	public void setWorkAmount(int workAmount) {
-		int old = this.workAmount;
+	public void setWorkAmount(double workAmount) {
+		double old = this.workAmount;
 		this.workAmount = workAmount;
 		firePropertyChange("workAmount",old,workAmount);
 	}
@@ -117,7 +117,7 @@ public class TaskNode extends NodeElement {
 	 * Get additional work amount of TaskNode.
 	 * @return the additionalWorkAmount
 	 */
-	public int getAdditionalWorkAmount() {
+	public double getAdditionalWorkAmount() {
 		return additionalWorkAmount;
 	}
 
@@ -125,8 +125,8 @@ public class TaskNode extends NodeElement {
 	 * Set additional work amount of TaskNode.
 	 * @param additionalWorkAmount the additionalWorkAmount to set
 	 */
-	public void setAdditionalWorkAmount(int additionalWorkAmount) {
-		int old = this.additionalWorkAmount;
+	public void setAdditionalWorkAmount(double additionalWorkAmount) {
+		double old = this.additionalWorkAmount;
 		this.additionalWorkAmount = additionalWorkAmount;
 		firePropertyChange("additionalWorkAmount", old, additionalWorkAmount);
 	}

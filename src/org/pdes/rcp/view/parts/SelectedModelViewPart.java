@@ -673,8 +673,8 @@ public class SelectedModelViewPart extends ViewPart {
 			public void keyReleased(KeyEvent e) {
 				if(e.character==SWT.CR){
 					String textString = taskWorkAmountText.getText();
-					if(intCheck(textString)) {
-						((TaskNode)selectedModel).setWorkAmount(Integer.parseInt(textString));
+					if(doubleCheck(textString)) {
+						((TaskNode)selectedModel).setWorkAmount(Double.parseDouble(textString));
 					}else{
 						taskWorkAmountText.setText(String.valueOf(((TaskNode)selectedModel).getWorkAmount()));
 					}

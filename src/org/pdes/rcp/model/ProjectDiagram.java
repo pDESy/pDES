@@ -265,9 +265,9 @@ public class ProjectDiagram extends Diagram {
 						String tagName = tag.getNodeName();
 						String value = tag.getFirstChild().getNodeValue();
 						if(tagName.equals("Name")) task.setName(value);
-						else if(tagName.equals("WorkAmount")) task.setWorkAmount(Integer.parseInt(value));
+						else if(tagName.equals("WorkAmount")) task.setWorkAmount(Double.parseDouble(value));
 						else if(tagName.equals("Progress")) task.setProgress(Double.parseDouble(value));
-						else if(tagName.equals("AdditionalWorkAmount")) task.setAdditionalWorkAmount(Integer.parseInt(value));
+						else if(tagName.equals("AdditionalWorkAmount")) task.setAdditionalWorkAmount(Double.parseDouble(value));
 						else if(tagName.equals("NeedFacility")) task.setNeedFacility(Boolean.parseBoolean(value));
 					}
 				}
