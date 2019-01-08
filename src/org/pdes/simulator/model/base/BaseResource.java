@@ -31,6 +31,7 @@ package org.pdes.simulator.model.base;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.UUID;
 
 import org.pdes.rcp.model.base.ResourceElement;
@@ -52,7 +53,7 @@ public class BaseResource {
 	protected final String nodeId; // ResourceElement ID
 	protected final String name;
 	protected final double costPerTime;
-	protected Map<String, Double> workAmountSkillMap; // skill map of work amount <taskname, skill point>
+	protected Map<String, Double[]> workAmountSkillMap; // skill map of work amount <taskname, skillpoint_mean, skillpoint_standard_deviation>
 	protected Map<String, Double> qualitySkillMap; // skill map of quality <taskname, skill point>
 	protected BaseTeam team;
 	
@@ -62,6 +63,8 @@ public class BaseResource {
 	protected final List<Integer> startTimeList = new ArrayList<Integer>(); // list of start time of one task
 	protected final List<Integer> finishTimeList = new ArrayList<Integer>(); // list of finish time of one task
 	protected final List<BaseTask> assignedTaskList = new ArrayList<BaseTask>(); // list of worked task
+	
+	private Random random = new Random();//random
 	
 	/**
 	 * This is the constructor.
@@ -132,7 +135,7 @@ public class BaseResource {
 	 * @return
 	 */
 	public boolean hasSkill(BaseTask task) {
-		return (task.getAllocatedTeamList().stream().anyMatch(t -> t.equals(team)) && workAmountSkillMap.containsKey(task.getName()) && workAmountSkillMap.get(task.getName()) > 0.0);
+		return (task.getAllocatedTeamList().stream().anyMatch(t -> t.equals(team)) && workAmountSkillMap.containsKey(task.getName()) && workAmountSkillMap.get(task.getName())[0] > 0.0);
 	}
 	
 	/**
@@ -143,9 +146,11 @@ public class BaseResource {
 	 */
 	public double getWorkAmountSkillPoint(BaseTask task){
 		if (!hasSkill(task)) return 0.0;
-		double skillPoint = workAmountSkillMap.get(task.getName());
+		double skillPoint = workAmountSkillMap.get(task.getName())[0];
+		double standardDeviation = workAmountSkillMap.get(task.getName())[1];
+		double baseProgress = random.nextGaussian() * standardDeviation + skillPoint;
 		long sumOfWorkingTaskInThisTime = this.getAssignedTaskList().stream().filter(t -> t.getStateInt()==2||task.getStateInt()==3).count();
-		double progress = skillPoint / sumOfWorkingTaskInThisTime;
+		double progress = baseProgress / sumOfWorkingTaskInThisTime;
 		return progress;
 	}
 	
@@ -160,11 +165,11 @@ public class BaseResource {
 	}
 	
 	/**
-	 * Get total work amount skill point.
+	 * Get total work amount skill point only mean.
 	 * @return
 	 */
 	public double getTotalWorkAmountSkillPoint() {
-		return workAmountSkillMap.values().stream().mapToDouble(v -> v).sum();
+		return workAmountSkillMap.values().stream().mapToDouble(v -> v[0]).sum();
 	}
 	
 	/**
@@ -237,7 +242,7 @@ public class BaseResource {
 	 * Get the skill map of work amount.
 	 * @return the workAmountSkillMap
 	 */
-	public Map<String, Double> getWorkAmountSkillMap() {
+	public Map<String, Double[]> getWorkAmountSkillMap() {
 		return workAmountSkillMap;
 	}
 
@@ -305,7 +310,7 @@ public class BaseResource {
 		sb.append("[");
 		sb.append(name);
 		sb.append("] WA(");
-		for (Map.Entry<String, Double> entry : workAmountSkillMap.entrySet()) {
+		for (Map.Entry<String, Double[]> entry : workAmountSkillMap.entrySet()) {
 			sb.append(entry.getKey());
 			sb.append("=");
 			sb.append(entry.getValue());

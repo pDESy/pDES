@@ -107,10 +107,10 @@ public class ProjectDiagram extends Diagram {
 							pw.println("				<Worker>");
 							pw.println("					<Name>"+this.xmlEscape(worker.getName())+"</Name>");
 							pw.println("					<Cost>"+worker.getCost()+"</Cost>");
-							Map<String,Double> workAmountSkillMap = worker.getWorkAmountSkillMap();
-							for(Iterator<Entry<String, Double>> it = workAmountSkillMap.entrySet().iterator();it.hasNext();){
-								Entry<String, Double> entry = (Map.Entry<String, Double>)it.next();
-								pw.println("					<WorkAmountSkill name=\""+this.xmlEscape(entry.getKey())+"\" value=\""+entry.getValue()+"\"/>");
+							Map<String,Double[]> workAmountSkillMap = worker.getWorkAmountSkillMap();
+							for(Iterator<Entry<String, Double[]>> it = workAmountSkillMap.entrySet().iterator();it.hasNext();){
+								Entry<String, Double[]> entry = (Map.Entry<String, Double[]>)it.next();
+								pw.println("					<WorkAmountSkill name=\""+this.xmlEscape(entry.getKey())+"\" value=\""+entry.getValue()[0]+"\" value_sd=\""+entry.getValue()[1]+"\"/>");
 							}
 							Map<String,Double> qualitySkillMap = worker.getQualitySkillMap();
 							for(Iterator<Entry<String, Double>> it = qualitySkillMap.entrySet().iterator();it.hasNext();){
@@ -131,10 +131,10 @@ public class ProjectDiagram extends Diagram {
 							pw.println("				<Facility>");
 							pw.println("					<Name>"+this.xmlEscape(facility.getName())+"</Name>");
 							pw.println("					<Cost>"+facility.getCost()+"</Cost>");
-							Map<String,Double> workAmountSkillMap = facility.getWorkAmountSkillMap();
-							for(Iterator<Entry<String, Double>> it = workAmountSkillMap.entrySet().iterator();it.hasNext();){
-								Entry<String, Double> entry = (Map.Entry<String, Double>)it.next();
-								pw.println("					<WorkAmountSkill name=\""+this.xmlEscape(entry.getKey())+"\" value=\""+entry.getValue()+"\"/>");
+							Map<String,Double[]> workAmountSkillMap = facility.getWorkAmountSkillMap();
+							for(Iterator<Entry<String, Double[]>> it = workAmountSkillMap.entrySet().iterator();it.hasNext();){
+								Entry<String, Double[]> entry = (Map.Entry<String, Double[]>)it.next();
+								pw.println("					<WorkAmountSkill name=\""+this.xmlEscape(entry.getKey())+"\" value=\""+entry.getValue()+"\" value_sd=\""+entry.getValue()+"\"/>");
 							}
 							Map<String,Double> qualitySkillMap = facility.getQualitySkillMap();
 							for(Iterator<Entry<String, Double>> it = qualitySkillMap.entrySet().iterator();it.hasNext();){
@@ -420,7 +420,11 @@ public class ProjectDiagram extends Diagram {
 						String childTagName = childTag.getNodeName();
 						if(childTagName.equals("Name")) resource.setName(childTag.getFirstChild().getNodeValue());
 						else if(childTagName.equals("Cost")) resource.setCost(Double.valueOf(childTag.getFirstChild().getNodeValue()));
-						else if(childTagName.equals("WorkAmountSkill")) resource.addSkillInWorkAmountSkillMap(childTag.getAttributes().getNamedItem("name").getNodeValue(), Double.valueOf(childTag.getAttributes().getNamedItem("value").getNodeValue()));
+						else if(childTagName.equals("WorkAmountSkill")) {
+							double skill_sd = 0.0;
+							if(childTag.getAttributes().getNamedItem("value_sd")!=null) skill_sd = Double.valueOf(childTag.getAttributes().getNamedItem("value_sd").getNodeValue());
+							resource.addSkillInWorkAmountSkillMap(childTag.getAttributes().getNamedItem("name").getNodeValue(), new Double[] {Double.valueOf(childTag.getAttributes().getNamedItem("value").getNodeValue()), skill_sd});
+						}
 						else if(childTagName.equals("QualitySkill")) resource.addSkillInQualitySkillMap(childTag.getAttributes().getNamedItem("name").getNodeValue(), Double.valueOf(childTag.getAttributes().getNamedItem("value").getNodeValue()));
 					}
 				}

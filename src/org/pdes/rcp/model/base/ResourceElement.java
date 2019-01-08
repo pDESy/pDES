@@ -44,7 +44,7 @@ public abstract class ResourceElement extends AbstractModel{
 	
 	protected String name;
 	protected double cost;
-	protected Map<String, Double> workAmountSkillMap = new HashMap<>();
+	protected Map<String, Double[]> workAmountSkillMap = new HashMap<>();
 	protected Map<String, Double> qualitySkillMap = new HashMap<>();
 	
 	/**
@@ -115,7 +115,7 @@ public abstract class ResourceElement extends AbstractModel{
 	 * Get the work amount skill map of this ResourceElement.
 	 * @return the workAmountSkillMap
 	 */
-	public Map<String, Double> getWorkAmountSkillMap() {
+	public Map<String, Double[]> getWorkAmountSkillMap() {
 		return workAmountSkillMap;
 	}
 	
@@ -123,7 +123,7 @@ public abstract class ResourceElement extends AbstractModel{
 	 * Set the work amount skill map of this ResourceElement.
 	 * @param workAmountSkillMap the workAmountSkillMap to set
 	 */
-	public void setWorkAmountSkillMap(Map<String, Double> workAmountSkillMap) {
+	public void setWorkAmountSkillMap(Map<String, Double[]> workAmountSkillMap) {
 		this.workAmountSkillMap = workAmountSkillMap;
 	}
 
@@ -148,17 +148,20 @@ public abstract class ResourceElement extends AbstractModel{
 	 * @param skillName
 	 * @param skillLevel
 	 */
-	public void addSkillInWorkAmountSkillMap(String skillName, double skillLevel) {
+	public void addSkillInWorkAmountSkillMap(String skillName, Double[] skillLevel) {
 		this.workAmountSkillMap.put(skillName, skillLevel);
 	}
 	
 	/**
-	 * Get the work amount skill level of "skillName" skill.
+	 * Get the work amount skill level {mean, s.d.} of "skillName" skill.
 	 * @param skillName
 	 * @return
 	 */
-	public double getWorkAmountSkillLevel(String skillName) {
-		if(this.workAmountSkillMap.get(skillName) == null) return 0;
+	public Double[] getWorkAmountSkillLevel(String skillName) {
+		if(this.workAmountSkillMap.get(skillName) == null) {
+			Double[] zero = {0.0, 0.0};
+			return zero;
+		}
 		return this.workAmountSkillMap.get(skillName);
 	}
 	
@@ -187,10 +190,10 @@ public abstract class ResourceElement extends AbstractModel{
 	 */
 	public void resetSkills(){
 		for(String skillName:workAmountSkillMap.keySet()){
-			addSkillInWorkAmountSkillMap(skillName, 0.0);
+			addSkillInWorkAmountSkillMap(skillName, new Double[]{0.0, 0.0});
 		}
 		for(String skillName:qualitySkillMap.keySet()){
-			addSkillInWorkAmountSkillMap(skillName, 0.0);
+			addSkillInWorkAmountSkillMap(skillName, new Double[]{0.0, 0.0});
 		}
 	}
 }

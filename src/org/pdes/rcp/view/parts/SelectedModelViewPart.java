@@ -346,7 +346,7 @@ public class SelectedModelViewPart extends ViewPart {
 		teamNameText.setLayoutData(teamNameTextFD);
 		
 		workerTableLabel = new Label(parent, SWT.NULL);
-		workerTableLabel.setText("[Workers]\nskill: work amount[parson-day]/error probability");
+		workerTableLabel.setText("[Workers]\n[skill_mean: progress[person-day]]/[skill_s.d.: progress[person-day]]/[error probability of component]");
 		workerTableLabel.setFont(new Font(null, "", 10, 0));
 		FormData workerTableLabelFD = new FormData();
 		workerTableLabelFD.top= new FormAttachment(teamNameLabel,12);
@@ -404,12 +404,13 @@ public class SelectedModelViewPart extends ViewPart {
 										worker.setCost(Double.valueOf(text.getText()));
 									}else{ // skill ( <work amount skill value>/<quality skill value> )
 										String[] skillTexts = text.getText().split("/");
-										if (skillTexts.length != 2) return;
-										String workAmountSkillText = skillTexts[0];
-										String qualitySkillText = skillTexts[1];
-										if (!(doubleCheck(workAmountSkillText) && doubleCheck(qualitySkillText))) return;
-										if((Double.valueOf(workAmountSkillText) < 0.00) || (Double.valueOf(qualitySkillText) < 0.00)) return;
-										worker.addSkillInWorkAmountSkillMap(allocatedTaskNameList.get(column-2), Double.valueOf(workAmountSkillText));
+										if (skillTexts.length != 3) return;
+										String workAmountSkill_mean_Text = skillTexts[0];
+										String workAmountSkill_sd_Text = skillTexts[1];
+										String qualitySkillText = skillTexts[2];
+										if (!(doubleCheck(workAmountSkill_mean_Text) && doubleCheck(workAmountSkill_sd_Text) && doubleCheck(qualitySkillText))) return;
+										if( Double.valueOf(workAmountSkill_mean_Text) < 0.00 || Double.valueOf(workAmountSkill_sd_Text) < 0.00 || Double.valueOf(qualitySkillText) < 0.00 ) return;
+										worker.addSkillInWorkAmountSkillMap(allocatedTaskNameList.get(column-2), new Double[] {Double.valueOf(workAmountSkill_mean_Text), Double.valueOf(workAmountSkill_sd_Text)});
 										worker.addSkillInQualitySkillMap(allocatedTaskNameList.get(column-2), Double.valueOf(qualitySkillText));
 									}
 									redrawAllTableForTeam();
@@ -1093,13 +1094,21 @@ public class SelectedModelViewPart extends ViewPart {
 			item.setText(0, member.getName());
 			item.setText(1, String.valueOf(member.getCost()));
 			for(int j=0;j<teamSkillNameList.size();j++){
-				String text = "/";
+				String text = "";
+				String delimiter = "/";
 				
-				// skill of work amount
+				// skill of work amount (mean)
 				if(member.getWorkAmountSkillMap().get(teamSkillNameList.get(j)) != null){
-					text = String.valueOf(member.getWorkAmountSkillMap().get(teamSkillNameList.get(j))) + text;
+					text = String.valueOf(member.getWorkAmountSkillMap().get(teamSkillNameList.get(j))[0]) + delimiter;
 				}else{
-					text = "0.0" + text;
+					text = "0.0" + delimiter;
+				}
+				
+				// skill of work amount (standard deviation)
+				if(member.getWorkAmountSkillMap().get(teamSkillNameList.get(j)) != null){
+					text = text + String.valueOf(member.getWorkAmountSkillMap().get(teamSkillNameList.get(j))[1]) + delimiter;
+				}else{
+					text = text + "0.0" + delimiter;
 				}
 				
 				// skill of quality
@@ -1155,6 +1164,13 @@ public class SelectedModelViewPart extends ViewPart {
 				// skill of work amount
 				if(member.getWorkAmountSkillMap().get(teamSkillNameList.get(j)) != null){
 					text = String.valueOf(member.getWorkAmountSkillMap().get(teamSkillNameList.get(j))) + text;
+				}else{
+					text = "0.0" + text;
+				}
+				
+				// skill of work amount (standard deviation)
+				if(member.getWorkAmountSkillMap().get(teamSkillNameList.get(j)) != null){
+					text = String.valueOf(member.getWorkAmountSkillMap().get(teamSkillNameList.get(j))[1]) + text;
 				}else{
 					text = "0.0" + text;
 				}
