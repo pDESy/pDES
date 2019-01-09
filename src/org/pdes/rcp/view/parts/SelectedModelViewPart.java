@@ -83,7 +83,7 @@ public class SelectedModelViewPart extends ViewPart {
 	private Label teamNameLabel;
 	private Text teamNameText;
 	@SuppressWarnings("unused")
-	private Label workerTableLabel, facilityTableLabel;
+	private Label workerTableLabel, workerTableLabel_ex, facilityTableLabel, facilityTableLabel_ex;
 	private Table workerTable, facilityTable;
 	@SuppressWarnings("unused")
 	private Button addWorkerButton, deleteWorkerButton, addFacilityButton, deleteFacilityButton;
@@ -96,8 +96,10 @@ public class SelectedModelViewPart extends ViewPart {
 		teamNameLabel.setVisible(visible);
 		teamNameText.setVisible(visible);
 		workerTableLabel.setVisible(visible);
+		workerTableLabel_ex.setVisible(visible);
 //		facilityTableLabel.setVisible(visible);
 //		facilityTable.setVisible(visible);
+//		facilityTableLabel_ex.setVisible(visible);
 		workerTable.setVisible(visible);
 		addWorkerButton.setVisible(visible);
 		deleteWorkerButton.setVisible(visible);
@@ -346,16 +348,24 @@ public class SelectedModelViewPart extends ViewPart {
 		teamNameText.setLayoutData(teamNameTextFD);
 		
 		workerTableLabel = new Label(parent, SWT.NULL);
-		workerTableLabel.setText("[Workers]\n[skill_mean: progress[person-day]]/[skill_s.d.: progress[person-day]]/[error probability of component]");
+		workerTableLabel.setText("[Workers]");
 		workerTableLabel.setFont(new Font(null, "", 10, 0));
 		FormData workerTableLabelFD = new FormData();
 		workerTableLabelFD.top= new FormAttachment(teamNameLabel,12);
 		workerTableLabelFD.left= new FormAttachment(0,10);
 		workerTableLabel.setLayoutData(workerTableLabelFD);
 		
+		workerTableLabel_ex = new Label(parent, SWT.NULL);
+		workerTableLabel_ex.setText("progress(mean)[person-day]]/progress(s.d)[person-day]]/error probability of component[-]");
+		workerTableLabel_ex.setFont(new Font(null, "", 10, 0));
+		FormData workerTableLabel_exFD = new FormData();
+		workerTableLabel_exFD.top= new FormAttachment(workerTableLabel,5);
+		workerTableLabel_exFD.left= new FormAttachment(2,10);
+		workerTableLabel_ex.setLayoutData(workerTableLabel_exFD);
+		
 		workerTable = new Table(parent, SWT.MULTI|SWT.BORDER|SWT.FULL_SELECTION);
 		FormData workerTableFD = new FormData();
-		workerTableFD.top= new FormAttachment(workerTableLabel,10);
+		workerTableFD.top= new FormAttachment(workerTableLabel_ex,10);
 		workerTableFD.left = new FormAttachment(0,20);
 		workerTableFD.bottom= new FormAttachment(55);
 		workerTableFD.right = new FormAttachment(95);
