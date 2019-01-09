@@ -49,7 +49,7 @@ import org.eclipse.swt.widgets.Text;
  */
 public class InputSimpleTextDialog extends Dialog {
 	private Text text;
-	private String textString;
+	private String textString = "";
 	
 	private String title="";
 	private String message="";
@@ -112,6 +112,8 @@ public class InputSimpleTextDialog extends Dialog {
 			}
 			
 		});
+		text.setText(textString);
+		
 		GridData textGD = new GridData();
 		textGD.horizontalAlignment = GridData.FILL;
 		textGD.grabExcessHorizontalSpace=true;
@@ -158,5 +160,13 @@ public class InputSimpleTextDialog extends Dialog {
 	 */
 	public String getTextString(){
 		return textString;
+	}
+	
+	/**
+	 * Set the string data from this dialog.
+	 * @param textString
+	 */
+	public void setTextString(String textString) {
+		this.textString = textString;
 	}
 }
