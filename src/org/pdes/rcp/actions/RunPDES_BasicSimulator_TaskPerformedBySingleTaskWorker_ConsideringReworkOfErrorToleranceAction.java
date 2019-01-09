@@ -42,14 +42,14 @@ import org.pdes.simulator.PDES_BasicSimulator_TaskPerformedBySingleTaskWorker;
 import org.pdes.simulator.model.ProjectInfo;
 
 /**
- * This is the Action class for running PDES_BasicSimulator considering rework of error tolerance at many times.<br>
+ * This is the Action class for running PDES_BasicSimulator considering rework of error tolerance.<br>
  * @author Taiga Mitsuyuki <mitsuyuki@sys.t.u-tokyo.ac.jp>
  */
-public class MultiRunPDES_BasicSimulator_TaskPerformedBySingleTaskWorker_ConsideringReworkOfErrorToleranceAction extends AbstractSimulationAction {
+public class RunPDES_BasicSimulator_TaskPerformedBySingleTaskWorker_ConsideringReworkOfErrorToleranceAction extends AbstractSimulationAction {
 	
-	private final String text = "DES considering rework of error tolerance";
+	private final String text = "Basic DES (one task performed by one single task worker) considering rework of error tolerance";
 	
-	public MultiRunPDES_BasicSimulator_TaskPerformedBySingleTaskWorker_ConsideringReworkOfErrorToleranceAction(){
+	public RunPDES_BasicSimulator_TaskPerformedBySingleTaskWorker_ConsideringReworkOfErrorToleranceAction(){
 		this.aggregateMode = true;
 		this.setToolTipText(text);
 		this.setText(text);
@@ -63,10 +63,14 @@ public class MultiRunPDES_BasicSimulator_TaskPerformedBySingleTaskWorker_Conside
 		
 		//Set the number of simulation
 		int numOfSimulation = this.setNumOfSimulation();
-		if(numOfSimulation < 0) {
+		if(numOfSimulation <= 0) {
 			this.aggregateMode = false;
 			return null;
-		}
+		}else if(numOfSimulation == 1) {
+			this.aggregateMode = false;
+		}else {
+			this.aggregateMode = true;
+		}		
 		
 		long start = System.currentTimeMillis();
 		ExecutorService service = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
@@ -117,7 +121,5 @@ public class MultiRunPDES_BasicSimulator_TaskPerformedBySingleTaskWorker_Conside
 			return String.format("%d,%f,%d,%f", no, project.getTotalCost(), project.getDuration(),project.getTotalActualWorkAmount());
 		}
 	}
-	
-	
 
 }

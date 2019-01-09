@@ -34,22 +34,23 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.stream.IntStream;
 
 import org.pdes.rcp.actions.base.AbstractSimulationAction;
 import org.pdes.rcp.model.ProjectDiagram;
 import org.pdes.simulator.PDES_BasicSimulator_TaskPerformedBySingleTaskWorkers;
 import org.pdes.simulator.model.ProjectInfo;
-import org.pdes.simulator.model.base.BaseProjectInfo;
 
 /**
- * This is the Action class for running PDES_BasicSimulator_TaskPerformedBySingleTaskWorkers at once.<br>
+ * This is the Action class for running PDES_BasicSimulator_TaskPerformedBySingleTaskWorkers.<br>
  * @author Taiga Mitsuyuki <mitsuyuki@sys.t.u-tokyo.ac.jp>
  */
-public class OneRunPDES_BasicSimulator_TaskPerformedBySingleTaskWorkersAction extends AbstractSimulationAction {
+public class RunPDES_BasicSimulator_TaskPerformedBySingleTaskWorkersAction extends AbstractSimulationAction {
 	
 	private final String text = "Basic DES (a task performed by single task workers)";
 	
-	public OneRunPDES_BasicSimulator_TaskPerformedBySingleTaskWorkersAction(){
+	public RunPDES_BasicSimulator_TaskPerformedBySingleTaskWorkersAction(){
+		this.aggregateMode = true;
 		this.setToolTipText(text);
 		this.setText(text);
 	}
@@ -59,10 +60,24 @@ public class OneRunPDES_BasicSimulator_TaskPerformedBySingleTaskWorkersAction ex
 	 */
 	@Override
 	protected List<Future<String>> doSimulation(ProjectDiagram diagram, int workflowCount) {
+		
+		//Set the number of simulation
+		int numOfSimulation = this.setNumOfSimulation();
+		if(numOfSimulation <= 0) {
+			this.aggregateMode = false;
+			return null;
+		}else if(numOfSimulation == 1) {
+			this.aggregateMode = false;
+		}else {
+			this.aggregateMode = true;
+		}
+		
 		long start = System.currentTimeMillis();
 		ExecutorService service = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 		List<Future<String>> resultList = new ArrayList<Future<String>>();
-		resultList.add(service.submit(new BasicSimulationTask(0, diagram, workflowCount, outputDir)));
+		IntStream.range(0,numOfSimulation).forEach(i ->{
+			resultList.add(service.submit(new BasicSimulationTask(i, diagram, workflowCount, outputDir)));
+		});
 		service.shutdown();
 		long end = System.currentTimeMillis();
 		msgStream.println("Processing time: " + ((end - start)) + " [millisec]");
@@ -98,7 +113,7 @@ public class OneRunPDES_BasicSimulator_TaskPerformedBySingleTaskWorkersAction ex
 		 */
 		@Override
 		public String call() throws Exception {
-			BaseProjectInfo project = new ProjectInfo(diagram, numOfWorkflow);
+			ProjectInfo project = new ProjectInfo(diagram, numOfWorkflow);
 			PDES_BasicSimulator_TaskPerformedBySingleTaskWorkers sim = new PDES_BasicSimulator_TaskPerformedBySingleTaskWorkers(project);
 			sim.execute();
 			sim.saveResultFilesInDirectory(outputDirectoryPath, String.valueOf(no));
