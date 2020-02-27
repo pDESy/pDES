@@ -48,7 +48,6 @@ public class BaseTeam {
 	private final String nodeId; // TeamNode ID
 	private final String name;
 	private final List<BaseWorker> workerList;
-	private final List<BaseFacility> facilityList;
 	private BaseTeam superiorTeam;
 	
 	/**
@@ -61,7 +60,6 @@ public class BaseTeam {
 		this.nodeId = teamNode.getId();
 		this.name = teamNode.getName();
 		this.workerList = teamNode.getWorkerList().stream().map(w -> new Worker(w, this)).collect(Collectors.toList());
-		this.facilityList = teamNode.getFacilityList().stream().map(f -> new Facility(f, this)).collect(Collectors.toList());
 	}
 	
 	/**
@@ -69,7 +67,7 @@ public class BaseTeam {
 	 */
 	public void initialize() {
 		workerList.forEach(w -> w.initialize());
-		facilityList.forEach(f -> f.initialize());
+
 	}
 	
 	/**
@@ -87,22 +85,7 @@ public class BaseTeam {
 	public List<BaseWorker> getWorkingWorkerList() {
 		return workerList.stream().filter(w -> w.isWorking()).collect(Collectors.toList());
 	}
-	
-	/**
-	 * Get the list of free facilities.
-	 * @return
-	 */
-	public List<BaseFacility> getFreeFacilityList() {
-		return facilityList.stream().filter(w -> w.isFree()).collect(Collectors.toList());
-	}
-	
-	/**
-	 * Get the list of working facilities.
-	 * @return
-	 */
-	public List<BaseFacility> getWorkingFacilityList() {
-		return facilityList.stream().filter(w -> w.isWorking()).collect(Collectors.toList());
-	}
+
 	
 	/**
 	 * Get the total cost of this team.
@@ -110,8 +93,7 @@ public class BaseTeam {
 	 */
 	public double getTotalCost() {
 		double workerTotalCost = workerList.stream().mapToDouble(w -> w.getTotalCost()).sum();
-		double facilityTotalCost = facilityList.stream().mapToDouble(f -> f.getTotalCost()).sum();
-		return workerTotalCost + facilityTotalCost;
+		return workerTotalCost;
 	}
 
 	/**
@@ -146,13 +128,6 @@ public class BaseTeam {
 		return workerList;
 	}
 
-	/**
-	 * Get the list of facilities.
-	 * @return the facilityList
-	 */
-	public List<BaseFacility> getFacilityList() {
-		return facilityList;
-	}
 
 	/**
 	 * Get the superior Team.
@@ -177,7 +152,6 @@ public class BaseTeam {
 		String str = "[" + name + "]\n";
 		str += String.join("\n", workerList.stream().map(w -> w.toString()).collect(Collectors.toList()));
 		str += "\n";
-		str += String.join("\n", facilityList.stream().map(f -> f.toString()).collect(Collectors.toList()));
 		return str;
 	}
 }

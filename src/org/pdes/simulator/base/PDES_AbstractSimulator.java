@@ -191,24 +191,15 @@ public abstract class PDES_AbstractSimulator {
 	 * @param freeWorkerList
 	 * @param freeFacilityList
 	 */
-	public void allocateReadyTasksToFreeResourcesForSingleTaskWorkerSimulation(List<BaseTask> readyTaskList, List<BaseWorker> freeWorkerList, List<BaseFacility> freeFacilityList){
+	public void allocateReadyTasksToFreeResourcesForSingleTaskWorkerSimulation(List<BaseTask> readyTaskList, List<BaseWorker> freeWorkerList){
 		this.sortTasks(readyTaskList);
 		readyTaskList.stream().forEachOrdered(task -> {
 			if(this.checkSatisfyingWorkflowLimitForStartingTask(task)){
 				Optional<BaseWorker> availableWorker = freeWorkerList.stream().filter(w -> w.hasSkill(task)).findFirst();
 				availableWorker.ifPresent(worker ->{
-					if (task.isNeedFacility()) {
-						Optional<BaseFacility> availableFacility = freeFacilityList.stream().filter(w -> w.hasSkill(task)).findFirst();
-						availableFacility.ifPresent(facility -> {
-							task.addAllocatedWorker(worker);
-							task.setAllocatedFacility(facility);
-							freeWorkerList.remove(worker);
-							freeFacilityList.remove(facility);
-						});
-					}else{
-						task.addAllocatedWorker(worker);;
-						freeWorkerList.remove(worker);
-					}
+					task.addAllocatedWorker(worker);;
+					freeWorkerList.remove(worker);
+					
 				});
 			}
 		});
@@ -222,24 +213,14 @@ public abstract class PDES_AbstractSimulator {
 	 * @param freeWorkerList
 	 * @param freeFacilityList
 	 */
-	public void allocateReadyTasksToFreeResourcesForSingleTaskWorkersSimulation(List<BaseTask> readyAndWorkingTaskList, List<BaseWorker> freeWorkerList, List<BaseFacility> freeFacilityList){
+	public void allocateReadyTasksToFreeResourcesForSingleTaskWorkersSimulation(List<BaseTask> readyAndWorkingTaskList, List<BaseWorker> freeWorkerList){
 		this.sortTasks(readyAndWorkingTaskList);
 		readyAndWorkingTaskList.stream().forEachOrdered(task -> {
 			if(this.checkSatisfyingWorkflowLimitForStartingTask(task)){
 				List<BaseWorker> allocatingWorkers = freeWorkerList.stream().filter(w -> w.hasSkill(task)).collect(Collectors.toList());
 				for(BaseWorker worker : allocatingWorkers) {
-					if (task.isNeedFacility()) {
-						Optional<BaseFacility> availableFacility = freeFacilityList.stream().filter(w -> w.hasSkill(task)).findFirst();
-						availableFacility.ifPresent(facility -> {
-							task.addAllocatedWorker(worker);
-							task.setAllocatedFacility(facility);
-							freeWorkerList.remove(worker);
-							freeFacilityList.remove(facility);
-						});
-					}else{
-						task.addAllocatedWorker(worker);
-						freeWorkerList.remove(worker);
-					}
+					task.addAllocatedWorker(worker);
+					freeWorkerList.remove(worker);
 				}
 			}
 		});
@@ -252,21 +233,13 @@ public abstract class PDES_AbstractSimulator {
 	 * @param allWorkerList
 	 * @param freeFacilityList
 	 */
-	public void allocateTaskToResourcesForMultiTaskWorkerSimulation(List<BaseTask> readyTaskAndWorkingTaskList, List<BaseWorker> allWorkerList, List<BaseFacility> freeFacilityList) {
+	public void allocateTaskToResourcesForMultiTaskWorkerSimulation(List<BaseTask> readyTaskAndWorkingTaskList, List<BaseWorker> allWorkerList) {
 		readyTaskAndWorkingTaskList.stream().forEachOrdered(task->{
 			if(this.checkSatisfyingWorkflowLimitForStartingTask(task)){
 				allWorkerList.stream().filter(w -> w.hasSkill(task)).forEach(w -> {
 					if(!task.isAlreadyAssigned(w)) {
-						if (task.isNeedFacility()) {
-							Optional<BaseFacility> availableFacility = freeFacilityList.stream().filter(f -> f.hasSkill(task)).findFirst();
-							availableFacility.ifPresent(facility -> {
-								task.addAllocatedWorker(w);
-								task.setAllocatedFacility(facility);
-								freeFacilityList.remove(facility);
-							});
-						}else {
-							task.addAllocatedWorker(w);
-						}
+						task.addAllocatedWorker(w);
+						
 					}
 				});
 			}
@@ -281,7 +254,6 @@ public abstract class PDES_AbstractSimulator {
 	public void performAndUpdateAllWorkflow(int time, boolean componentErrorRework){
 		workflowList.forEach(w -> w.checkWorking(time));//READY -> WORKING
 		organization.getWorkingWorkerList().stream().forEach(w -> w.addLaborCost());//pay labor cost
-		organization.getWorkingFacilityList().stream().forEach(f -> f.addLaborCost());//pay labor cost
 		workflowList.forEach(w -> w.perform(time, componentErrorRework));//update information of WORKING task in each workflow
 		workflowList.forEach(w -> w.checkFinished(time));// WORKING -> WORKING_ADDITIONALLY or FINISHED
 		workflowList.forEach(w -> w.checkReady(time));// NONE -> READY
@@ -396,19 +368,6 @@ public abstract class PDES_AbstractSimulator {
 					baseInfo.add("Worker");
 					baseInfo.add(w.getName());
 					IntStream.range(0, w.getAssignedTaskList().size()).forEach(i -> {
-						baseInfo.add(String.valueOf(w.getStartTimeList().get(i)));
-						baseInfo.add(String.valueOf(w.getFinishTimeList().get(i)));
-					});
-					pw.println(String.join(separator, baseInfo.stream().toArray(String[]::new)));
-				});
-				
-				//Facilities
-				t.getFacilityList().forEach(w -> {
-					List<String> baseInfo = new ArrayList<String>();
-					baseInfo.add(teamName);
-					baseInfo.add("Facility");
-					baseInfo.add(w.getName());
-					IntStream.range(0, w.getFinishTimeList().size()).forEach(i -> {
 						baseInfo.add(String.valueOf(w.getStartTimeList().get(i)));
 						baseInfo.add(String.valueOf(w.getFinishTimeList().get(i)));
 					});

@@ -110,48 +110,7 @@ public class BaseOrganization {
 					(l1, l2) -> l1.addAll(l2)
 				);
 	}
-	
-	/**
-	 * Get the list of free facilities.
-	 * @return
-	 */
-	public List<BaseFacility> getFreeFacilityList() {
-		return teamList.stream()
-				.map(t -> t.getFreeFacilityList())
-				.collect(
-					() -> new ArrayList<BaseFacility>(),
-					(l, t) -> l.addAll(t),
-					(l1, l2) -> l1.addAll(l2)
-				);
-	}
-	
-	/**
-	 * Get the list of working facilities.
-	 * @return
-	 */
-	public List<BaseFacility> getWorkingFacilityList() {
-		return teamList.stream()
-				.map(t -> t.getWorkingFacilityList())
-				.collect(
-					() -> new ArrayList<BaseFacility>(),
-					(l, t) -> l.addAll(t),
-					(l1, l2) -> l1.addAll(l2)
-				);
-	}
-	
-	/**
-	 * Get the list of all facilities.
-	 * @return
-	 */
-	public List<BaseFacility> getFacilityList() {
-		return teamList.stream()
-				.map(t -> t.getFacilityList())
-				.collect(
-					() -> new ArrayList<BaseFacility>(),
-					(l, t) -> l.addAll(t),
-					(l1, l2) -> l1.addAll(l2)
-				);
-	}
+
 	
 	/**
 	 * Get total cost of this organization.

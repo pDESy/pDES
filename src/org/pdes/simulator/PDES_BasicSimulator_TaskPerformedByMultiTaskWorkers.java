@@ -75,15 +75,13 @@ public class PDES_BasicSimulator_TaskPerformedByMultiTaskWorkers extends PDES_Ab
 			List<BaseTask> workingTaskList = this.getWorkingTaskList();
 			List<BaseTask> readyAndWorkingTaskList = Arrays.asList(readyTaskList,workingTaskList).stream().flatMap(list -> list.stream()).collect(Collectors.toList());
 			List<BaseWorker> allWorkerList = organization.getWorkerList();
-			List<BaseFacility> freeFacilityList = organization.getFreeFacilityList();
 			
 			//2. Sort ready task and free resources
 			this.sortTasks(readyAndWorkingTaskList);
 			this.sortWorkers(allWorkerList);
-			this.sortFacilities(freeFacilityList);
 			
 			//3. Allocate ready tasks to free resources
-			this.allocateTaskToResourcesForMultiTaskWorkerSimulation(readyAndWorkingTaskList, allWorkerList, freeFacilityList);
+			this.allocateTaskToResourcesForMultiTaskWorkerSimulation(readyAndWorkingTaskList, allWorkerList);
 			
 			//4. Perform WORKING tasks and update the status of each task.
 			this.performAndUpdateAllWorkflow(time, considerReworkOfErrorTorelance);
