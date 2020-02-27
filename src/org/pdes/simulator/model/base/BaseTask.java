@@ -67,6 +67,7 @@ public class BaseTask {
 	private final List<BaseTask> outputTaskList = new ArrayList<>();
 	private int dueDate;
 	private List<BaseTeam> allocatedTeamList = new ArrayList<>();
+	private List<BaseFacilityGroup> allocatedFacilityGroupList = new ArrayList<>();
 	private final List<BaseComponent> targetComponentList = new ArrayList<>();
 	
 	// Changeable variable on simulation
@@ -83,7 +84,7 @@ public class BaseTask {
 	private List<Integer> finishTimeList = new ArrayList<Integer>(); // list of finish time of one task
 	private boolean additionalTaskFlag = false;
 	private List<BaseWorker> allocatedWorkerList = new ArrayList<>();
-	private BaseFacility allocatedFacility = null;
+	private List<BaseFacility> allocatedFacilityList = new ArrayList<>();
 	
 	/**
 	 * This is the constructor.
@@ -127,7 +128,7 @@ public class BaseTask {
 		
 		additionalTaskFlag = false;
 		allocatedWorkerList = new ArrayList<>();
-		allocatedFacility = null;
+		allocatedFacilityList = new ArrayList<>();
 	}
 	
 	/**
@@ -183,9 +184,12 @@ public class BaseTask {
 				allocatedWorker.addAssignedTask(this);
 			}
 			if (needFacility) {
-				allocatedFacility.setStateWorking();
-				allocatedFacility.addStartTime(time);
-				allocatedFacility.addAssignedTask(this);
+				for(BaseFacility allocatedFacility : allocatedFacilityList) {
+					allocatedFacility.setStateWorking();
+					allocatedFacility.addStartTime(time);
+					allocatedFacility.addAssignedTask(this);
+				}
+
 			}
 		}
 	}
@@ -213,8 +217,12 @@ public class BaseTask {
 					allocatedWorker.addFinishTime(time);
 				}
 				if (needFacility) {
-					allocatedFacility.setStateFree();
-					allocatedFacility.addFinishTime(time);
+					for(BaseFacility allocatedFacility : allocatedFacilityList) {
+						allocatedFacility.setStateFree();
+						allocatedFacility.addFinishTime(time);
+
+					}
+					
 				}
 				
 				if (additionalTaskFlag) {
@@ -233,8 +241,10 @@ public class BaseTask {
 						allocatedWorker.addAssignedTask(this);
 					}
 					if (needFacility) {
-						allocatedFacility.addStartTime(time+1);
-						allocatedFacility.addAssignedTask(this);
+						for(BaseFacility allocatedFacility : allocatedFacilityList) {
+							allocatedFacility.addStartTime(time+1);
+							allocatedFacility.addAssignedTask(this);
+						}
 					}
 					
 					additionalTaskFlag = false;
@@ -250,8 +260,11 @@ public class BaseTask {
 					allocatedWorker.addFinishTime(time);
 				}
 				if (needFacility) {
-					allocatedFacility.setStateFree();
-					allocatedFacility.addFinishTime(time);
+					for(BaseFacility allocatedFacility : allocatedFacilityList) {
+						allocatedFacility.setStateFree();
+						allocatedFacility.addFinishTime(time);
+					}
+
 				}
 			}
 		}
@@ -274,8 +287,10 @@ public class BaseTask {
 				noErrorProbability -= allocatedWorker.getQualitySkillPoint(this); // Probability of success this task
 			}
 			if (needFacility) {
-				workAmount *= allocatedFacility.getWorkAmountSkillPoint(this);
-				noErrorProbability *= 1.0 - allocatedFacility.getQualitySkillPoint(this);
+				for(BaseFacility allocatedFacility : allocatedFacilityList) {
+					workAmount *= allocatedFacility.getWorkAmountSkillPoint(this);
+					//noErrorProbability *= 1.0 - allocatedFacility.getQualitySkillPoint(this);
+				}
 			}
 			remainingWorkAmount -= workAmount;
 			for (BaseComponent c : targetComponentList) {
@@ -411,7 +426,21 @@ public class BaseTask {
 	public void addAllocatedTeam(BaseTeam allocatedTeam) {
 		this.allocatedTeamList.add(allocatedTeam);
 	}
-
+	
+	/**
+	 * Get allocated team list of this task.
+	 * @return the allocatedTeam
+	 */
+	public List<BaseFacilityGroup> getAllocatedFacilityGroupList() {
+		return allocatedFacilityGroupList;
+	}
+	/**
+	 * Add allocated team of this task.
+	 * @param allocatedTeam the allocatedTeam to set
+	 */
+	public void addAllocatedFacilityGroup(BaseFacilityGroup allocatedFacilityGroup) {
+		this.allocatedFacilityGroupList.add(allocatedFacilityGroup);
+	}
 	/**
 	 * Get the list of input tasks.
 	 * @return the inputTaskList
@@ -610,8 +639,8 @@ public class BaseTask {
 	 * Get the allocated facility.
 	 * @return the workingFacility
 	 */
-	public BaseFacility getAllocatedFacility() {
-		return allocatedFacility;
+	public List<BaseFacility> getAllocatedFacilityList() {
+		return allocatedFacilityList;
 	}
 
 	/**
@@ -619,7 +648,7 @@ public class BaseTask {
 	 * @param allocatedFacility the allocatedFacility to set
 	 */
 	public void setAllocatedFacility(BaseFacility allocatedFacility) {
-		this.allocatedFacility = allocatedFacility;
+		this.allocatedFacilityList.add(allocatedFacility);
 	}
 	
 	/**
@@ -627,7 +656,7 @@ public class BaseTask {
 	 */
 	public String toString() {
 		String worker = (allocatedWorkerList.size() > 0) ? String.join(",", allocatedWorkerList.stream().map(w -> w.getName()).collect(Collectors.toList())) : "";
-		String facility = (allocatedFacility != null) ? allocatedFacility.getName() : "";
+		String facility = (allocatedFacilityList.size() > 0) ? String.join(",", allocatedFacilityList.stream().map(f -> f.getName()).collect(Collectors.toList())) : "";
 		String inputTaskNames = String.join(",", inputTaskList.stream().map(t -> t.getName()).collect(Collectors.toList())); // DEBUG
 		return String.format("[%s] %s WA=%f team=%s w=%s f=%s in=%s", name, state, remainingWorkAmount, allocatedTeamList.stream().map(BaseTeam::getName).collect(Collectors.joining(",")), worker, facility, inputTaskNames);
 	}

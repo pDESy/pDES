@@ -32,6 +32,7 @@ import org.eclipse.gef.EditPart;
 import org.pdes.rcp.model.AllocationLink;
 import org.pdes.rcp.model.ComponentHierarchyLink;
 import org.pdes.rcp.model.ComponentNode;
+import org.pdes.rcp.model.FacilityNode;
 import org.pdes.rcp.model.TargetComponentLink;
 import org.pdes.rcp.model.ProjectDiagram;
 import org.pdes.rcp.model.SubWorkflowNode;
@@ -57,6 +58,8 @@ public class ProjectEditorEditPartFactory extends DiagramEditPartFactory {
 			editPart = new ProjectDiagramEditPart();
 		}else if(model instanceof TeamNode){
 			editPart = new TeamNodeEditPart();
+		}else if(model instanceof FacilityNode) {
+			editPart = new FacilityNodeEditPart();
 		}else if(model instanceof TaskNode){
 			editPart = new TaskNodeEditPart();
 		}else if(model instanceof ComponentNode){

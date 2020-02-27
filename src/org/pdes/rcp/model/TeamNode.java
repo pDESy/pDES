@@ -45,7 +45,6 @@ public class TeamNode extends NodeElement {
 	////////////////Variables//////////////////////////////////////////////////////////
 	private String name = "";
 	protected List<WorkerElement> workerList = new ArrayList<WorkerElement>();
-	protected List<FacilityElement> facilityList = new ArrayList<FacilityElement>();
 	//////////////////////////////////////////////////////////////////////////////////
 	
 	/**
@@ -123,57 +122,6 @@ public class TeamNode extends NodeElement {
 			workerNameList.add(worker.getName());
 		}
 		return workerNameList;
-	}
-
-	/**
-	 * Get the list of facilities.
-	 * @return the facilityList
-	 */
-	public List<FacilityElement> getFacilityList() {
-		return facilityList;
-	}
-
-	/**
-	 * Set the list of facilities
-	 * @param facilityList the facilityList to set
-	 */
-	public void setFacilityList(List<FacilityElement> facilityList) {
-		this.facilityList = facilityList;
-	}
-	
-	/**
-	 * Add a facility to the list of facility.
-	 * @param worker
-	 */
-	public void addFacility(FacilityElement facility){
-		this.facilityList.add(facility);
-	}
-	
-	/**
-	 * Remove "number"th facility from the list of facility.
-	 * @param worker
-	 */
-	public void deleteFacility(int number){
-		this.facilityList.remove(number);
-	}
-	
-	/**
-	 * Initialize the list of facilities.
-	 */
-	public void initializeFacilityList(){
-		this.facilityList = new ArrayList<FacilityElement>();
-	}
-	
-	/**
-	 * Get the list of facility's name.
-	 * @return
-	 */
-	public List<String> getFacilityNameList(){
-		List<String> facilityNameList = new ArrayList<String>();
-		for(FacilityElement facility:this.facilityList){
-			facilityNameList.add(facility.getName());
-		}
-		return facilityNameList;
 	}
 
 	/**

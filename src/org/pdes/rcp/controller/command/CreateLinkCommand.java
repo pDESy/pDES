@@ -32,6 +32,7 @@ import org.eclipse.gef.commands.Command;
 import org.pdes.rcp.model.AllocationLink;
 import org.pdes.rcp.model.ComponentHierarchyLink;
 import org.pdes.rcp.model.ComponentNode;
+import org.pdes.rcp.model.FacilityNode;
 import org.pdes.rcp.model.SubWorkflowNode;
 import org.pdes.rcp.model.TargetComponentLink;
 import org.pdes.rcp.model.TaskDependencyLink;
@@ -120,7 +121,7 @@ public class CreateLinkCommand extends Command {
 			return true;
 		}else if(link instanceof AllocationLink){
 			if(this.hasSomeLinkBetweenNodeElement()) return false;//IF a link has existed in the same place THEN wrong.
-			if(!(source instanceof TeamNode)) return false;
+			if(!(source instanceof TeamNode) && !(source instanceof FacilityNode)) return false;
 			if(!(target instanceof TaskNode)) return false;
 			//if(target.getIncomingLinkList().stream().filter(link -> link instanceof AllocationLink).count()>0) return false;//Only one team can be assigned to one Task.
 			return true;

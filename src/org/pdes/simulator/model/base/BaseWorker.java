@@ -35,7 +35,7 @@ import org.pdes.rcp.model.WorkerElement;
  * @author Taiga Mitsuyuki <mitsuyuki@sys.t.u-tokyo.ac.jp>
  *
  */
-public class BaseWorker extends BaseResource {
+public class BaseWorker extends BaseHumanResource {
 	
 	/**
 	 * This is the constructor.

@@ -35,14 +35,14 @@ import org.pdes.rcp.model.FacilityElement;
  * @author Taiga Mitsuyuki <mitsuyuki@sys.t.u-tokyo.ac.jp>
  *
  */
-public class BaseFacility extends BaseResource {
+public class BaseFacility extends BasePhysicalResource {
 	
 	/**
 	 * This is the constructor.
 	 * @param facilityElement
 	 * @param team
 	 */
-	public BaseFacility(FacilityElement facilityElement, BaseTeam team) {
-		super(facilityElement, team);
+	public BaseFacility(FacilityElement facilityElement, BaseFacilityGroup group) {
+		super(facilityElement, group);
 	}
 }

@@ -121,30 +121,6 @@ public class ProjectDiagram extends Diagram {
 						}
 						pw.println("			</WorkerList>");
 					}
-					
-					//Facility
-					List<FacilityElement> facilityList = team.getFacilityList();
-					if(facilityList.size()==0) pw.println("			<FacilityList/>");
-					else{
-						pw.println("			<FacilityList>");
-						for(FacilityElement facility:facilityList){
-							pw.println("				<Facility>");
-							pw.println("					<Name>"+this.xmlEscape(facility.getName())+"</Name>");
-							pw.println("					<Cost>"+facility.getCost()+"</Cost>");
-							Map<String,Double[]> workAmountSkillMap = facility.getWorkAmountSkillMap();
-							for(Iterator<Entry<String, Double[]>> it = workAmountSkillMap.entrySet().iterator();it.hasNext();){
-								Entry<String, Double[]> entry = (Map.Entry<String, Double[]>)it.next();
-								pw.println("					<WorkAmountSkill name=\""+this.xmlEscape(entry.getKey())+"\" value=\""+entry.getValue()+"\" value_sd=\""+entry.getValue()+"\"/>");
-							}
-							Map<String,Double> qualitySkillMap = facility.getQualitySkillMap();
-							for(Iterator<Entry<String, Double>> it = qualitySkillMap.entrySet().iterator();it.hasNext();){
-								Entry<String, Double> entry = (Map.Entry<String, Double>)it.next();
-								pw.println("					<QualitySkill name=\""+this.xmlEscape(entry.getKey())+"\" value=\""+entry.getValue()+"\"/>");
-							}
-							pw.println("				</Facility>");
-						}
-						pw.println("			</FacilityList>");
-					}
 					pw.println("		</TeamNode>");
 					
 				}else if(node instanceof TaskNode){
@@ -168,6 +144,35 @@ public class ProjectDiagram extends Diagram {
 					pw.println("			<Name>"+this.xmlEscape((subWorkflow.getName()).toString())+"</Name>");
 					pw.println("			<Filename>"+subWorkflow.getFilename()+"</Filename>");
 					pw.println("		</SubWorkflowNode>");
+				}else if (node instanceof FacilityNode) {
+					FacilityNode facilityGroup = (FacilityNode) node;
+					pw.println("		<FacilityNode id=\""+facilityGroup.getId()+"\" Left=\""+((NodeElement) node).getX()+"\" Top=\""+((NodeElement) node).getY()+"\" Width=\""+((NodeElement) node).getWidth()+"\" Height=\""+((NodeElement) node).getHeight()+"\">");
+					pw.println("			<Name>"+this.xmlEscape(facilityGroup.getName())+"</Name>");
+
+					//Facility
+					List<FacilityElement> facilityList = facilityGroup.getFacilityList();
+					if(facilityList.size()==0) pw.println("			<FacilityList/>");
+					else{
+						pw.println("			<FacilityList>");
+						for(FacilityElement facility:facilityList){
+							pw.println("				<Facility>");
+							pw.println("					<Name>"+this.xmlEscape(facility.getName())+"</Name>");
+							pw.println("					<Cost>"+facility.getCost()+"</Cost>");
+							Map<String,Double[]> workAmountSkillMap = facility.getWorkAmountSkillMap();
+							for(Iterator<Entry<String, Double[]>> it = workAmountSkillMap.entrySet().iterator();it.hasNext();){
+								Entry<String, Double[]> entry = (Map.Entry<String, Double[]>)it.next();
+								pw.println("					<WorkAmountSkill name=\""+this.xmlEscape(entry.getKey())+"\" value=\""+entry.getValue()+"\" value_sd=\""+entry.getValue()+"\"/>");
+							}
+							Map<String,Double> qualitySkillMap = facility.getQualitySkillMap();
+							for(Iterator<Entry<String, Double>> it = qualitySkillMap.entrySet().iterator();it.hasNext();){
+								Entry<String, Double> entry = (Map.Entry<String, Double>)it.next();
+								pw.println("					<QualitySkill name=\""+this.xmlEscape(entry.getKey())+"\" value=\""+entry.getValue()+"\"/>");
+							}
+							pw.println("				</Facility>");
+						}
+						pw.println("			</FacilityList>");
+					}
+					pw.println("		</FacilityNode>");
 				}
 			}
 			pw.println("	</NodeElementList>");
@@ -231,7 +236,7 @@ public class ProjectDiagram extends Diagram {
 						if(childNode.getFirstChild() != null){
 							String value = childNode.getFirstChild().getNodeValue();
 							if(tagName.equals("Name")) team.setName(value);
-							else if(tagName.equals("WorkerList")||tagName.equals("FacilityList")){
+							else if(tagName.equals("WorkerList")){
 								setResourceListInTeamNode(team,childNode.getChildNodes());
 							}
 						}
@@ -240,6 +245,42 @@ public class ProjectDiagram extends Diagram {
 				
 				
 				this.addNodeElement(team);
+			}
+			///////////////////////////////
+			
+			/////////////FacilityNode///////////////////////
+			nodeList = xml.getElementsByTagName("FacilityNode");
+			for(int i=0;i<nodeList.getLength();i++){
+				
+				FacilityNode facilityGroup = new FacilityNode();
+				Node node = nodeList.item(i);
+				NamedNodeMap attrs = node.getAttributes();
+				if(attrs!=null){
+					facilityGroup.setId(attrs.getNamedItem("id").getNodeValue());
+					facilityGroup.setX(Integer.parseInt(attrs.getNamedItem("Left").getNodeValue()));
+					facilityGroup.setY(Integer.parseInt(attrs.getNamedItem("Top").getNodeValue()));
+					facilityGroup.setWidth(Integer.parseInt(attrs.getNamedItem("Width").getNodeValue()));
+					facilityGroup.setHeight(Integer.parseInt(attrs.getNamedItem("Height").getNodeValue()));
+				}
+				
+				NodeList childNodeList = node.getChildNodes();
+				for(int j=0;j<childNodeList.getLength();j++){
+					Node childNode = childNodeList.item(j);
+					if(childNode.getNodeName()==null||childNode.getNodeName().equals("#text")){
+					}else{
+						String tagName = childNode.getNodeName();
+						if(childNode.getFirstChild() != null){
+							String value = childNode.getFirstChild().getNodeValue();
+							if(tagName.equals("Name")) facilityGroup.setName(value);
+							else if(tagName.equals("FacilityList")){
+								setResourceListInFacilityNode(facilityGroup,childNode.getChildNodes());
+							}
+						}
+					}
+				}
+				
+				
+				this.addNodeElement(facilityGroup);
 			}
 			///////////////////////////////
 			
@@ -408,9 +449,42 @@ public class ProjectDiagram extends Diagram {
 				if(tagName.equals("Worker")) {
 					resource = new WorkerElement();
 					team.addWorker((WorkerElement) resource);
-				}else if(tagName.equals("Facility")){
+				}
+				NodeList childNodeList = tag.getChildNodes();
+				for(int j=0;j<childNodeList.getLength();j++){
+					Node childTag = childNodeList.item(j);
+					if(childTag.getNodeName()==null||childTag.getNodeName().equals("#text")){
+					}else{
+						String childTagName = childTag.getNodeName();
+						if(childTagName.equals("Name")) resource.setName(childTag.getFirstChild().getNodeValue());
+						else if(childTagName.equals("Cost")) resource.setCost(Double.valueOf(childTag.getFirstChild().getNodeValue()));
+						else if(childTagName.equals("WorkAmountSkill")) {
+							double skill_sd = 0.0;
+							if(childTag.getAttributes().getNamedItem("value_sd")!=null) skill_sd = Double.valueOf(childTag.getAttributes().getNamedItem("value_sd").getNodeValue());
+							resource.addSkillInWorkAmountSkillMap(childTag.getAttributes().getNamedItem("name").getNodeValue(), new Double[] {Double.valueOf(childTag.getAttributes().getNamedItem("value").getNodeValue()), skill_sd});
+						}
+						else if(childTagName.equals("QualitySkill")) resource.addSkillInQualitySkillMap(childTag.getAttributes().getNamedItem("name").getNodeValue(), Double.valueOf(childTag.getAttributes().getNamedItem("value").getNodeValue()));
+					}
+				}
+			}
+		}
+	}
+	/**
+	 * Set Resource(Facility) list in FacilityNode.
+	 * @param team
+	 * @param resourceType
+	 * @param nodes
+	 */
+	private void setResourceListInFacilityNode(FacilityNode facilityGroup, NodeList nodes) {
+		for(int i=0;i<nodes.getLength();i++){
+			Node tag = nodes.item(i);
+			if(tag.getNodeName()==null||tag.getNodeName().equals("#text")){
+			}else{
+				String tagName = tag.getNodeName();
+				ResourceElement resource = null;
+				if(tagName.equals("Facility")){
 					resource = new FacilityElement();
-					team.addFacility((FacilityElement) resource);
+					facilityGroup.addFacility((FacilityElement) resource);
 				}
 				NodeList childNodeList = tag.getChildNodes();
 				for(int j=0;j<childNodeList.getLength();j++){
