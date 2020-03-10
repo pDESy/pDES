@@ -48,6 +48,7 @@ import org.pdes.rcp.model.base.Diagram;
 import org.pdes.rcp.model.base.Link;
 import org.pdes.rcp.model.base.NodeElement;
 import org.pdes.rcp.model.base.ResourceElement;
+import org.pdes.simulator.model.base.BaseFacilityGroup;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -161,7 +162,7 @@ public class ProjectDiagram extends Diagram {
 							Map<String,Double[]> workAmountSkillMap = facility.getWorkAmountSkillMap();
 							for(Iterator<Entry<String, Double[]>> it = workAmountSkillMap.entrySet().iterator();it.hasNext();){
 								Entry<String, Double[]> entry = (Map.Entry<String, Double[]>)it.next();
-								pw.println("					<WorkAmountSkill name=\""+this.xmlEscape(entry.getKey())+"\" value=\""+entry.getValue()+"\" value_sd=\""+entry.getValue()+"\"/>");
+								pw.println("					<WorkAmountSkill name=\""+this.xmlEscape(entry.getKey())+"\" value=\""+entry.getValue()[0]+"\" value_sd=\""+entry.getValue()[1]+"\"/>");
 							}
 							Map<String,Double> qualitySkillMap = facility.getQualitySkillMap();
 							for(Iterator<Entry<String, Double>> it = qualitySkillMap.entrySet().iterator();it.hasNext();){
@@ -605,5 +606,9 @@ public class ProjectDiagram extends Diagram {
 		int old = concurrencyLimitOfWorkflow;
 		this.concurrencyLimitOfWorkflow = concurrencyLimitOfWorkflow;
 		firePropertyChange("concurrencyLimitOfWorkflow", old, concurrencyLimitOfWorkflow);
+	}
+	
+	public List<FacilityNode> getFacilityNodeList(){
+		return this.getNodeElementList().stream().filter(node -> node instanceof FacilityNode).map(node -> (FacilityNode)node).collect(Collectors.toList());
 	}
 }
