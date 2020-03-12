@@ -645,12 +645,31 @@ public class BaseTask {
 
 	/**
 	 * Set the allocated facility.
-	 * @param allocatedFacility the allocatedFacility to set
+	 * @param arrayList the allocatedFacility to set
 	 */
-	public void setAllocatedFacility(BaseFacility allocatedFacility) {
-		this.allocatedFacilityList.add(allocatedFacility);
+	public void setAllocatedFacility(ArrayList<BaseFacility> arrayList) {
+		this.allocatedFacilityList = arrayList;
 	}
 	
+	public void addAllocatedFacility(BaseFacility facility) {
+		this.allocatedFacilityList.add(facility);
+	}
+	
+	public void removeAllocatedFacility(BaseFacility facility) {
+		this.allocatedFacilityList.remove(facility);
+	}
+
+	public boolean isReadyWithFacility() {
+		List<BaseFacilityGroup> necessaryFacility = this.getAllocatedFacilityGroupList().stream().collect(Collectors.toList());
+		for (BaseFacility facility : this.allocatedFacilityList) {
+			necessaryFacility.remove(facility.getGroup());
+		}
+		if(necessaryFacility.size() == 0) {
+			return true;
+		}else {
+			return false;
+		}
+	}
 	/**
 	 * Transfer to text data.
 	 */

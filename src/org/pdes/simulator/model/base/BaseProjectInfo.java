@@ -30,11 +30,13 @@ package org.pdes.simulator.model.base;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.pdes.rcp.model.ProjectDiagram;
 import org.pdes.simulator.model.Component;
+import org.pdes.simulator.model.Factory;
 import org.pdes.simulator.model.Organization;
 import org.pdes.simulator.model.Product;
 import org.pdes.simulator.model.Task;
@@ -50,6 +52,7 @@ public class BaseProjectInfo {
 	private ProjectDiagram diagram;
 	
 	public BaseOrganization organization;
+	public BaseFactory factory;
 	public List<BaseWorkflow> workflowList;
 	public List<BaseProduct> productList;
 	public int concurrencyWorkflowLimit;
@@ -62,14 +65,14 @@ public class BaseProjectInfo {
 	public BaseProjectInfo(ProjectDiagram diagram, int workflowCount){
 		this.diagram = diagram;
 		this.organization = this.getOrganizationFromProjectDiagram();
-		
+		this.factory = this.getFactoryFromProjectDiagram();
 		this.workflowList = new ArrayList<BaseWorkflow>();
 		this.productList = new ArrayList<BaseProduct>();
 		IntStream.range(0,workflowCount).forEach(i ->{
 			List<BaseTask> taskList = this.getTaskListConsideringOnlyTaskDependency();
 			List<BaseComponent> componentList = this.getComponentListConsideringOnlyComponentDependency();
 			this.addTargetComponentLinkInformation(componentList, taskList);
-			this.addAllocationLinkInformation(organization, taskList);
+			this.addAllocationLinkInformation(organization, factory, taskList);
 			BaseWorkflow workflow = new Workflow(i,taskList);
 			BaseProduct product = new Product(i,componentList);
 			this.workflowList.add(workflow);
@@ -78,6 +81,16 @@ public class BaseProjectInfo {
 		this.concurrencyWorkflowLimit = this.diagram.getConcurrencyLimitOfWorkflow();
 	}
 	
+	/**
+	 * Get Factory from ProjectDiagram.
+	 * @return
+	 */
+	private BaseFactory getFactoryFromProjectDiagram(){
+		List<BaseFacilityGroup> facilityGroupList = diagram.getFacilityNodeList().stream()
+				.map(node -> new BaseFacilityGroup(node))
+				.collect(Collectors.toList());
+		return new Factory(facilityGroupList);
+	}
 	/**
 	 * Get Organization from ProjectDiagram.
 	 * @return
@@ -157,24 +170,30 @@ public class BaseProjectInfo {
 	}
 	
 	/**
-	 * Add TargetComponentLink information to Team and Task.
+	 * Add AllocationLink information to Team and Task.
 	 * @param organization
 	 * @param taskList
 	 */
-	private void addAllocationLinkInformation(BaseOrganization organization, List<BaseTask> taskList){
+	private void addAllocationLinkInformation(BaseOrganization organization, BaseFactory factory, List<BaseTask> taskList){
 		this.diagram.getAllocationLinkList().forEach(link -> {
 			BaseTask destinationTask = taskList.stream()
 					.filter(task -> task.getNodeId().equals(link.getDestinationNode().getId()))
 					.findFirst()
 					.get();
-			BaseTeam originTeam = organization.getTeamList().stream()
+			Optional<BaseTeam> originTeam = organization.getTeamList().stream()
 					.filter(team -> team.getNodeId().equals(link.getOriginNode().getId()))
-					.findFirst()
-					.get();
-			destinationTask.addAllocatedTeam(originTeam);
+					.findFirst();
+			originTeam.ifPresent(team -> {
+				destinationTask.addAllocatedTeam(team);
+			});
+			Optional<BaseFacilityGroup> originFacilityGroup = factory.getFacilityGroupList().stream()
+					.filter(group -> group.getNodeId().equals(link.getOriginNode().getId()))
+					.findFirst();
+			originFacilityGroup.ifPresent(group -> {
+				destinationTask.addAllocatedFacilityGroup(group);
+			});
 		});
 	}
-
 	/**
 	 * Get the Organization.
 	 * @return the organization

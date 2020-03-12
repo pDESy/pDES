@@ -11,14 +11,14 @@ public class BasePhysicalResource extends BaseResource{
 		this.group = group;
 	}
 	public boolean hasSkill(BaseTask task) {
-			return (task.getAllocatedFacilityList().stream().anyMatch(t -> t.equals(group)) && workAmountSkillMap.containsKey(task.getName()) && workAmountSkillMap.get(task.getName())[0] > 0.0);
+			return (task.getAllocatedFacilityGroupList().stream().anyMatch(t -> t.equals(group)) && workAmountSkillMap.containsKey(task.getName()) && workAmountSkillMap.get(task.getName())[0] > 0.0);
 	}
 	
 	/**
 	 * Get the team which has this Resource.
 	 * @return the team
 	 */
-	public BaseFacilityGroup getTeam() {
+	public BaseFacilityGroup getGroup() {
 		return group;
 	}
 
@@ -26,7 +26,7 @@ public class BasePhysicalResource extends BaseResource{
 	 * Set the team which has this Resource.
 	 * @param team the team to set
 	 */
-	public void setTeam(BaseFacilityGroup group) {
+	public void setGroup(BaseFacilityGroup group) {
 		this.group = group;
 	}
 }
