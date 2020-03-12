@@ -376,7 +376,7 @@ public abstract class PDES_AbstractSimulator {
 					pw.println(String.join(separator, baseInfo.stream().toArray(String[]::new)));
 				});
 			});
-			
+
 			pw.close();
 			os.close();
 		} catch (IOException e) {

@@ -1,9 +1,16 @@
 package org.pdes.simulator;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.pdes.simulator.base.PDES_AbstractSimulator;
 import org.pdes.simulator.model.base.BaseFacility;
@@ -11,6 +18,7 @@ import org.pdes.simulator.model.base.BaseFacilityGroup;
 import org.pdes.simulator.model.base.BaseFactory;
 import org.pdes.simulator.model.base.BaseProjectInfo;
 import org.pdes.simulator.model.base.BaseTask;
+import org.pdes.simulator.model.base.BaseTeam;
 import org.pdes.simulator.model.base.BaseWorker;
 
 public class PDES_BasicSimulator_TaskPerformedBySingleTaskWorkerWithFacility extends PDES_AbstractSimulator{
@@ -107,6 +115,113 @@ public class PDES_BasicSimulator_TaskPerformedBySingleTaskWorkerWithFacility ext
 					task.setAllocatedFacility(new ArrayList<BaseFacility>());
 				}
 			}
+		}
+	}
+
+	/**
+	 * Save result file by csv format.
+	 * @param outputDirName
+	 * @param resultFileName
+	 */
+	public void saveResultFileByCsv(String outputDirName, String resultFileName){
+		File resultFile = new File(outputDirName, resultFileName);
+		String separator = ",";
+		try {
+			// BOM
+			FileOutputStream os = new FileOutputStream(resultFile);
+			os.write(0xef);
+			os.write(0xbb);
+			os.write(0xbf);
+			
+			PrintWriter pw = new PrintWriter(new BufferedWriter(new OutputStreamWriter(os)));
+			
+			// header
+			pw.println(String.join(separator, new String[]{"Total Cost", String.valueOf(project.getTotalCost()), "Duration", String.valueOf(project.getDuration()+1), "Total Work Amount", String.valueOf(project.getTotalActualWorkAmount())}));
+			
+			// workflow
+			pw.println();
+			pw.println("Gantt chart of each Task");
+			pw.println(String.join(separator , new String[]{"Workflow", "Task", "Assigned Team", "Ready Time", "Start Time", "Finish Time", "Start Time", "Finish Time", "Start Time", "Finish Time"}));
+			this.workflowList.forEach(w -> {
+				String workflowName = "Workflow ("+w.getDueDate()+")";
+				w.getTaskList().forEach(t ->{
+					List<String> baseInfo = new ArrayList<String>();
+					baseInfo.add(workflowName);
+					baseInfo.add(t.getName());
+					//baseInfo.add(t.getAllocatedTeam().getName());
+					baseInfo.add(t.getAllocatedTeamList().stream().map(BaseTeam::getName).collect(Collectors.joining("+")));
+					IntStream.range(0, t.getFinishTimeList().size()).forEach(i -> {
+						baseInfo.add(String.valueOf(t.getReadyTimeList().get(i)));
+						baseInfo.add(String.valueOf(t.getStartTimeList().get(i)));
+						baseInfo.add(String.valueOf(t.getFinishTimeList().get(i)));
+					});
+					pw.println(String.join(separator ,baseInfo.stream().toArray(String[]::new)));
+				});
+			});
+			
+			// product
+			pw.println();
+			pw.println("Gantt chart of each Component");
+			pw.println(String.join(separator , new String[]{"Product", "Component", "Error/Error Torerance", "Start Time", "Finish Time", "Start Time", "Finish Time", "Start Time", "Finish Time"}));
+			this.productList.forEach(p -> {
+				String productName = "Product ("+p.getDueDate()+")";
+				p.getComponentList().forEach(c -> {
+					List<String> baseInfo = new ArrayList<String>();
+					baseInfo.add(productName);
+					baseInfo.add(c.getName());
+					baseInfo.add(String.valueOf(c.getError())+"/"+String.valueOf(c.getErrorTolerance()));
+					IntStream.range(0, c.getFinishTimeList().size()).forEach(i -> {
+						baseInfo.add(String.valueOf(c.getStartTimeList().get(i)));
+						baseInfo.add(String.valueOf(c.getFinishTimeList().get(i)));
+					});
+					pw.println(String.join(separator ,baseInfo.stream().toArray(String[]::new)));
+				});
+			});
+			// Organization
+			pw.println();
+			pw.println("Gantt chart of each Worker");
+			pw.println(String.join(separator , new String[]{"Team", "Type", "Name", "Start Time", "Finish Time"}));
+			this.organization.getTeamList().forEach(t -> {
+				String teamName = t.getName();
+				
+				//Workers
+				t.getWorkerList().forEach(w -> {;
+					List<String> baseInfo = new ArrayList<String>();
+					baseInfo.add(teamName);
+					baseInfo.add("Worker");
+					baseInfo.add(w.getName());
+					IntStream.range(0, w.getAssignedTaskList().size()).forEach(i -> {
+						baseInfo.add(String.valueOf(w.getStartTimeList().get(i)));
+						baseInfo.add(String.valueOf(w.getFinishTimeList().get(i)));
+					});
+					pw.println(String.join(separator, baseInfo.stream().toArray(String[]::new)));
+				});
+			});
+
+			// Factory
+			pw.println();
+			pw.println("Gantt chart of each Facility");
+			pw.println(String.join(separator , new String[]{"Team", "Type", "Name", "Start Time", "Finish Time"}));
+			this.factory.getFacilityGroupList().forEach(f -> {
+				String groupName = f.getName();
+				
+				//Facilities
+				f.getFacilityList().forEach(w -> {;
+					List<String> baseInfo = new ArrayList<String>();
+					baseInfo.add(groupName);
+					baseInfo.add("Facility");
+					baseInfo.add(w.getName());
+					IntStream.range(0, w.getAssignedTaskList().size()).forEach(i -> {
+						baseInfo.add(String.valueOf(w.getStartTimeList().get(i)));
+						baseInfo.add(String.valueOf(w.getFinishTimeList().get(i)));
+					});
+					pw.println(String.join(separator, baseInfo.stream().toArray(String[]::new)));
+				});
+			});
+			pw.close();
+			os.close();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 }
