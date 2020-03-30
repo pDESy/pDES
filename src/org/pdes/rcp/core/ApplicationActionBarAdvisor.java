@@ -37,6 +37,8 @@ import org.eclipse.ui.application.IActionBarConfigurer;
 import org.pdes.rcp.actions.NewProjectFileAction;
 import org.pdes.rcp.actions.RunPDES_BasicSimulator_TaskPerformedBySingleTaskWorkerAction;
 import org.pdes.rcp.actions.RunPDES_BasicSimulator_TaskPerformedBySingleTaskWorkersAction;
+import org.pdes.rcp.actions.RunPDES_BasicSimulator_TaskPerformedBySingleTaskWorkersWithFacilityAction;
+import org.pdes.rcp.actions.RunPDES_BasicSimulator_TaskPerfromedBySingleTaskWorkerWithFacilityAction;
 import org.pdes.rcp.actions.RunPDES_BasicSimulator_TaskPerformedByMultiTaskWorkersAction;
 import org.pdes.rcp.actions.OpenProjectFileAction;
 import org.pdes.rcp.actions.SaveAsFileAction;
@@ -55,6 +57,8 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 	private RunPDES_BasicSimulator_TaskPerformedBySingleTaskWorkerAction basicSimSingleTaskWorker = new RunPDES_BasicSimulator_TaskPerformedBySingleTaskWorkerAction();
 	private RunPDES_BasicSimulator_TaskPerformedBySingleTaskWorkersAction basicSimSingleTaskWorkers = new RunPDES_BasicSimulator_TaskPerformedBySingleTaskWorkersAction();
 	private RunPDES_BasicSimulator_TaskPerformedByMultiTaskWorkersAction basicSimMultiTaskWorker = new RunPDES_BasicSimulator_TaskPerformedByMultiTaskWorkersAction();
+	private RunPDES_BasicSimulator_TaskPerformedBySingleTaskWorkersWithFacilityAction basicSimSingleTaskWorkersWithFacility = new RunPDES_BasicSimulator_TaskPerformedBySingleTaskWorkersWithFacilityAction();
+	private RunPDES_BasicSimulator_TaskPerfromedBySingleTaskWorkerWithFacilityAction basicSimSingleTaskWorkerWithFacility = new RunPDES_BasicSimulator_TaskPerfromedBySingleTaskWorkerWithFacilityAction();
 //	private RunPDES_SimulatorConsideringReworkOfErrorToleranceAction retSim = new RunPDES_SimulatorConsideringReworkOfErrorToleranceAction();
 	
 	/**
@@ -96,6 +100,8 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
 		runMenu.add(basicSimSingleTaskWorker);
 		runMenu.add(basicSimSingleTaskWorkers);
 		runMenu.add(basicSimMultiTaskWorker);
+		runMenu.add(basicSimSingleTaskWorkerWithFacility);
+		runMenu.add(basicSimSingleTaskWorkersWithFacility);
 //		runMenu.add(retSim);
 	}
 	

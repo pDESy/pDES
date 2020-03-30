@@ -58,6 +58,7 @@ import org.pdes.rcp.dialog.InputSimpleTextDialog;
 import org.pdes.rcp.dialog.SelectSimpleDataDialog;
 import org.pdes.rcp.model.ComponentNode;
 import org.pdes.rcp.model.FacilityElement;
+import org.pdes.rcp.model.FacilityNode;
 import org.pdes.rcp.model.ProjectDiagram;
 import org.pdes.rcp.model.SubWorkflowNode;
 import org.pdes.rcp.model.TaskNode;
@@ -83,10 +84,10 @@ public class SelectedModelViewPart extends ViewPart {
 	private Label teamNameLabel;
 	private Text teamNameText;
 	@SuppressWarnings("unused")
-	private Label workerTableLabel, workerTableLabel_ex, facilityTableLabel, facilityTableLabel_ex;
-	private Table workerTable, facilityTable;
+	private Label workerTableLabel, workerTableLabel_ex;
+	private Table workerTable;
 	@SuppressWarnings("unused")
-	private Button addWorkerButton, deleteWorkerButton, addFacilityButton, deleteFacilityButton;
+	private Button addWorkerButton, deleteWorkerButton;
 	
 	/**
 	 * Set visible mode of each attributes of model.
@@ -228,6 +229,34 @@ public class SelectedModelViewPart extends ViewPart {
 			diagramConcurrencyLimitText.setText(String.valueOf(((ProjectDiagram) selectedModel).getConcurrencyLimitOfWorkflow()));
 		}
 	}
+	////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//7. Define SWT of clicking FacilityNode
+	//If you add some attributes in TeamNode, add "setVisibleOfTeamSWT" method.
+	private Label facilityNameLabel;
+	private Text facilityNameText;
+	@SuppressWarnings("unused")
+	private Label facilityTableLabel, facilityTableLabel_ex;
+	private Table facilityTable;
+	@SuppressWarnings("unused")
+	private Button addFacilityButton, deleteFacilityButton;
+
+	/**
+	 * Set visible mode of each attributes of model.
+	 * @param visible
+	 */
+	private void setVisibleOfFacilitySWT(boolean visible){
+		facilityNameLabel.setVisible(visible);
+		facilityNameText.setVisible(visible);
+		facilityTableLabel.setVisible(visible);
+		facilityTableLabel_ex.setVisible(visible);
+		facilityTable.setVisible(visible);
+		addFacilityButton.setVisible(visible);
+		deleteFacilityButton.setVisible(visible);
+		if(visible){
+			facilityNameText.setText(((FacilityNode) selectedModel).getName());
+			this.redrawAllTableForFacility();
+		}
+	}
 	
 	////////////////////////////////////////////////////////////////////////////
 	
@@ -252,6 +281,16 @@ public class SelectedModelViewPart extends ViewPart {
 		if(selectedModel instanceof TeamNode){
 			this.allocatedTaskNameList = ((TeamNode)selectedModel).getNameListOfAllocatedTasks();
 			this.setVisibleOfTeamSWT(true);
+			this.setVisibleOfFacilitySWT(false);
+			this.setVisibleOfTaskSWT(false);
+			this.setVisibleOfLinkSWT(false);
+			this.setVisibleOfComponentSWT(false);
+			this.setVisibleOfSubWorkflowSWT(false);
+			this.setVisibleOfDiagramSWT(false);
+		}else if(selectedModel instanceof FacilityNode) {
+			this.allocatedTaskNameList = ((FacilityNode)selectedModel).getNameListOfAllocatedTasks();
+			this.setVisibleOfFacilitySWT(true);
+			this.setVisibleOfTeamSWT(false);
 			this.setVisibleOfTaskSWT(false);
 			this.setVisibleOfLinkSWT(false);
 			this.setVisibleOfComponentSWT(false);
@@ -259,6 +298,7 @@ public class SelectedModelViewPart extends ViewPart {
 			this.setVisibleOfDiagramSWT(false);
 		}else if(selectedModel instanceof TaskNode){
 			this.setVisibleOfTeamSWT(false);
+			this.setVisibleOfFacilitySWT(false);
 			this.setVisibleOfTaskSWT(true);
 			this.setVisibleOfLinkSWT(false);
 			this.setVisibleOfComponentSWT(false);
@@ -266,6 +306,7 @@ public class SelectedModelViewPart extends ViewPart {
 			this.setVisibleOfDiagramSWT(false);
 		}else if(selectedModel instanceof Link){
 			this.setVisibleOfTeamSWT(false);
+			this.setVisibleOfFacilitySWT(false);
 			this.setVisibleOfTaskSWT(false);
 			this.setVisibleOfLinkSWT(true);
 			this.setVisibleOfComponentSWT(false);
@@ -273,6 +314,7 @@ public class SelectedModelViewPart extends ViewPart {
 			this.setVisibleOfDiagramSWT(false);
 		}else if(selectedModel instanceof ComponentNode){
 			this.setVisibleOfTeamSWT(false);
+			this.setVisibleOfFacilitySWT(false);
 			this.setVisibleOfTaskSWT(false);
 			this.setVisibleOfLinkSWT(false);
 			this.setVisibleOfComponentSWT(true);
@@ -280,6 +322,7 @@ public class SelectedModelViewPart extends ViewPart {
 			this.setVisibleOfDiagramSWT(false);
 		}else if(selectedModel instanceof SubWorkflowNode){
 			this.setVisibleOfTeamSWT(false);
+			this.setVisibleOfFacilitySWT(false);
 			this.setVisibleOfTaskSWT(false);
 			this.setVisibleOfLinkSWT(false);
 			this.setVisibleOfComponentSWT(false);
@@ -287,6 +330,7 @@ public class SelectedModelViewPart extends ViewPart {
 			this.setVisibleOfDiagramSWT(false);
 		}else if(selectedModel instanceof ProjectDiagram){
 			this.setVisibleOfTeamSWT(false);
+			this.setVisibleOfFacilitySWT(false);
 			this.setVisibleOfTaskSWT(false);
 			this.setVisibleOfLinkSWT(false);
 			this.setVisibleOfComponentSWT(false);
@@ -294,6 +338,7 @@ public class SelectedModelViewPart extends ViewPart {
 			this.setVisibleOfDiagramSWT(true);
 		}else{
 			this.setVisibleOfTeamSWT(false);
+			this.setVisibleOfFacilitySWT(false);
 			this.setVisibleOfTaskSWT(false);
 			this.setVisibleOfLinkSWT(false);
 			this.setVisibleOfComponentSWT(false);
@@ -486,138 +531,183 @@ public class SelectedModelViewPart extends ViewPart {
 		deleteWorkerButtonFD.left= new FormAttachment(addWorkerButton,10);
 		deleteWorkerButton.setLayoutData(deleteWorkerButtonFD);
 		
+		///////////////////////FacilityNode////////////////////////////		
+		facilityNameLabel = new Label(parent, SWT.NULL);
+		facilityNameLabel.setText("Name : ");
+		facilityNameLabel.setFont(new Font(null, "", 10, 0));
+		FormData facilityNameLabelFD = new FormData();
+		facilityNameLabelFD.top= new FormAttachment(0,10);
+		facilityNameLabelFD.left= new FormAttachment(0,10);
+		facilityNameLabel.setLayoutData(facilityNameLabelFD);
+
+		facilityNameText = new Text(parent, SWT.BORDER|SWT.SINGLE);
+		facilityNameText.addKeyListener(new KeyListener(){
+			/*
+			 * (non-Javadoc)
+			 * @see org.eclipse.draw2d.KeyListener#keyPressed(org.eclipse.draw2d.KeyEvent)
+			 */
+			@Override
+			public void keyPressed(KeyEvent e) {}
+
+			/*
+			 * (non-Javadoc)
+			 * @see org.eclipse.draw2d.KeyListener#keyReleased(org.eclipse.draw2d.KeyEvent)
+			 */
+			@Override
+			public void keyReleased(KeyEvent e) {
+				if(e.character==SWT.CR){
+					String textString = facilityNameText.getText();
+					((FacilityNode)selectedModel).setName(textString);
+				}
+			}
+		});
+		FormData facilityNameTextFD = new FormData();
+		facilityNameTextFD.top= new FormAttachment(0,10);
+		facilityNameTextFD.left= new FormAttachment(facilityNameLabel,10);
+		facilityNameTextFD.right = new FormAttachment(95);
+		facilityNameText.setLayoutData(facilityNameTextFD);
 		
-//		facilityTableLabel = new Label(parent, SWT.NULL);
-//		facilityTableLabel.setText("[Facilities]\nskill: work amount[parson-day]/error probability");
-//		facilityTableLabel.setFont(new Font(null, "", 10, 0));
-//		FormData facilityTableLabelFD = new FormData();
-//		facilityTableLabelFD.top= new FormAttachment(workerTable,20);
-//		facilityTableLabelFD.left= new FormAttachment(0,10);
-//		facilityTableLabel.setLayoutData(facilityTableLabelFD);
-//		
-//		facilityTable = new Table(parent, SWT.MULTI|SWT.BORDER|SWT.FULL_SELECTION);
-//		FormData facilityTableFD = new FormData();
-//		facilityTableFD.top= new FormAttachment(facilityTableLabel,10);
-//		facilityTableFD.left = new FormAttachment(0,20);
-//		facilityTableFD.bottom= new FormAttachment(98);
-//		facilityTableFD.right = new FormAttachment(95);
-//		facilityTable.setLayoutData(facilityTableFD);
-//		facilityTable.setLinesVisible(true);
-//		facilityTable.setHeaderVisible(true);
-//		facilityTable.setEnabled(true);
-//		final TableEditor facilityTableEditor = new TableEditor(facilityTable);
-//		facilityTableEditor.grabHorizontal = true;
-//		facilityTable.addMouseListener(new MouseAdapter(){
-//			/*
-//			 * (non-Javadoc)
-//			 * @see org.eclipse.swt.events.MouseAdapter#mouseDoubleClick(org.eclipse.swt.events.MouseEvent)
-//			 */
-//			public void mouseDoubleClick(MouseEvent e){
-//				int index = facilityTable.getSelectionIndex();
-//				if(index==-1) return;
-//				
-//				FacilityElement facility = ((TeamNode)selectedModel).getFacilityList().get(index);
-//				facilityTable.setSelection(new int[0]);
-//				TableItem item = facilityTable.getItem(index);
-//				Point point = new Point(e.x,e.y);
-//				for(int i=0;i < facilityTable.getColumnCount();i++){
-//					if(item.getBounds(i).contains(point)){
-//						final int column = i;
-//						final Text text = new Text(facilityTable, SWT.NONE);
-//						text.setText(item.getText(i));
-//						text.addFocusListener(new FocusListener(){
-//							@Override
-//							public void focusLost(FocusEvent e){
-//								text.dispose();
-//							}
-//							@Override
-//							public void focusGained(FocusEvent e) {}
-//						});
-//						
-//						text.addKeyListener(new KeyListener(){
-//
-//							@Override
-//							public void keyPressed(KeyEvent e) {
-//								if(e.character==SWT.CR){
-//									if(column==0){ // name
-//										facility.setName(text.getText());
-//									}else if(column==1 && doubleCheck(text.getText())){ // cost
-//										if(Double.valueOf(text.getText()) < 0.00) return;
-//										facility.setCost(Double.valueOf(text.getText()));
-//									}else{ // skill ( <work amount skill value>/<quality skill value> )
-//										String[] skillTexts = text.getText().split("/");
-//										if (skillTexts.length != 2) return;
-//										String workAmountSkillText = skillTexts[0];
-//										String qualitySkillText = skillTexts[1];
-//										if (!(doubleCheck(workAmountSkillText) && doubleCheck(qualitySkillText))) return;
-//										if((Double.valueOf(workAmountSkillText) < 0.00) || (Double.valueOf(qualitySkillText) < 0.00)) return;
-//										facility.addSkillInWorkAmountSkillMap(allocatedTaskNameList.get(column-2), Double.valueOf(workAmountSkillText));
-//										facility.addSkillInQualitySkillMap(allocatedTaskNameList.get(column-2), Double.valueOf(qualitySkillText));
-//									}
-//									redrawAllTableForTeam();
-//									text.dispose();
-//								} else if(e.keyCode==SWT.ESC){
-//									text.dispose();
-//								}
-//							}
-//							
-//							@Override
-//							public void keyReleased(KeyEvent e) {}
-//						});
-//						facilityTableEditor.setEditor (text, item, i);
-//						text.setFocus();
-//						text.selectAll();
-//					}
-//				}
-//			}
-//		});
-//		
-//		addFacilityButton = new Button(parent,SWT.PUSH);
-//		addFacilityButton.setText("ADD");
-//		addFacilityButton.setEnabled(true);
-//		addFacilityButton.addSelectionListener(new SelectionAdapter(){
-//			public void widgetSelected(SelectionEvent e){
-//				InputSimpleTextDialog dialog = new InputSimpleTextDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell());
-//				dialog.setTitleAndMessage("Add facility", "Please input the name of new facility");
-//				if(dialog.open()==0){
-//					String name = dialog.getTextString();
-//					FacilityElement member = new FacilityElement();
-//					member.setName(name);
-//					member.setCost(0);
-//					((TeamNode) selectedModel).addFacility(member);
-//					redrawAllTableForTeam();
-//				}
-//			}
-//		});
-//		FormData addFacilityButtonFD = new FormData();
-//		addFacilityButtonFD.top= new FormAttachment(workerTable,15);
-//		addFacilityButtonFD.left= new FormAttachment(facilityTableLabel,10);
-//		addFacilityButton.setLayoutData(addFacilityButtonFD);
-//		
-//		deleteFacilityButton = new Button(parent,SWT.PUSH);
-//		deleteFacilityButton.setText("DELETE");
-//		deleteFacilityButton.setEnabled(true);
-//		deleteFacilityButton.addSelectionListener(new SelectionAdapter(){
-//			public void widgetSelected(SelectionEvent e){
-//				if(((TeamNode) selectedModel).getFacilityList().size()==0) return;
-//				List<String> memberNameList = ((TeamNode) selectedModel).getFacilityNameList();
-//				SelectSimpleDataDialog dialog = new SelectSimpleDataDialog((PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell()));
-//				dialog.setTitleAndMessage("Delete facility", "Please select deleting facilities");
-//				dialog.setItemList(memberNameList);
-//				if(dialog.open()==0){
-//					List<Integer> selectedItemNumber = dialog.getSelectedItemNumber();
-//					for(int i=0;i<selectedItemNumber.size();i++){
-//						((TeamNode) selectedModel).deleteFacility(selectedItemNumber.get(i));
-//					}
-//					redrawAllTableForTeam();
-//				}
-//			}
-//		});
-//		FormData deleteFacilityButtonFD = new FormData();
-//		deleteFacilityButtonFD.top= new FormAttachment(workerTable,15);
-//		deleteFacilityButtonFD.left= new FormAttachment(addFacilityButton,10);
-//		deleteFacilityButton.setLayoutData(deleteFacilityButtonFD);
+		facilityTableLabel = new Label(parent, SWT.NULL);
+		facilityTableLabel.setText("[Facilities]");
+		facilityTableLabel.setFont(new Font(null, "", 10, 0));
+		FormData facilityTableLabelFD = new FormData();
+		facilityTableLabelFD.top= new FormAttachment(facilityNameLabel,20);
+		facilityTableLabelFD.left= new FormAttachment(0,10);
+		facilityTableLabel.setLayoutData(facilityTableLabelFD);
 		
+		facilityTableLabel_ex = new Label(parent, SWT.NULL);
+		facilityTableLabel_ex.setText("progress(mean)[person-day]]/progress(s.d)[person-day]]/error probability of component[-]");
+		facilityTableLabel_ex.setFont(new Font(null, "", 10, 0));
+		FormData facilityTableLabel_exFD = new FormData();
+		facilityTableLabel_exFD.top= new FormAttachment(facilityTableLabel,5);
+		facilityTableLabel_exFD.left= new FormAttachment(2,10);
+		facilityTableLabel_ex.setLayoutData(facilityTableLabel_exFD);
+		
+		facilityTable = new Table(parent, SWT.MULTI|SWT.BORDER|SWT.FULL_SELECTION);
+		FormData facilityTableFD = new FormData();
+		facilityTableFD.top= new FormAttachment(facilityTableLabel_ex,10);
+		facilityTableFD.left = new FormAttachment(0,20);
+		facilityTableFD.bottom= new FormAttachment(55);
+		facilityTableFD.right = new FormAttachment(95);
+		facilityTable.setLayoutData(facilityTableFD);
+		facilityTable.setLinesVisible(true);
+		facilityTable.setHeaderVisible(true);
+		facilityTable.setEnabled(true);
+		final TableEditor facilityTableEditor = new TableEditor(facilityTable);
+		facilityTableEditor.grabHorizontal = true;
+		facilityTable.addMouseListener(new MouseAdapter(){
+			/*
+			 * (non-Javadoc)
+			 * @see org.eclipse.swt.events.MouseAdapter#mouseDoubleClick(org.eclipse.swt.events.MouseEvent)
+			 */
+			public void mouseDoubleClick(MouseEvent e){
+				int index = facilityTable.getSelectionIndex();
+				if(index==-1) return;
+				
+				FacilityElement facility = ((FacilityNode)selectedModel).getFacilityList().get(index);
+				facilityTable.setSelection(new int[0]);
+				TableItem item = facilityTable.getItem(index);
+				Point point = new Point(e.x,e.y);
+				for(int i=0;i < facilityTable.getColumnCount();i++){
+					if(item.getBounds(i).contains(point)){
+						final int column = i;
+						final Text text = new Text(facilityTable, SWT.NONE);
+						text.setText(item.getText(i));
+						text.addFocusListener(new FocusListener(){
+							@Override
+							public void focusLost(FocusEvent e){
+								text.dispose();
+							}
+							@Override
+							public void focusGained(FocusEvent e) {}
+						});
+						
+						text.addKeyListener(new KeyListener(){
+
+							@Override
+							public void keyPressed(KeyEvent e) {
+								if(e.character==SWT.CR){
+									if(column==0){ // name
+										facility.setName(text.getText());
+									}else if(column==1 && doubleCheck(text.getText())){ // cost
+										if(Double.valueOf(text.getText()) < 0.00) return;
+										facility.setCost(Double.valueOf(text.getText()));
+									}else{ // skill ( <work amount skill value>/<quality skill value> )
+										
+										String[] skillTexts = text.getText().split("/");
+										if (skillTexts.length != 3) return;
+										String workAmountSkill_mean_Text = skillTexts[0];
+										String workAmountSkill_sd_Text = skillTexts[1];
+										String qualitySkillText = skillTexts[2];
+										if (!(doubleCheck(workAmountSkill_mean_Text) && doubleCheck(workAmountSkill_sd_Text) && doubleCheck(qualitySkillText))) return;
+										if( Double.valueOf(workAmountSkill_mean_Text) < 0.00 || Double.valueOf(workAmountSkill_sd_Text) < 0.00 || Double.valueOf(qualitySkillText) < 0.00 ) return;
+										facility.addSkillInWorkAmountSkillMap(allocatedTaskNameList.get(column-2), new Double[] {Double.valueOf(workAmountSkill_mean_Text), Double.valueOf(workAmountSkill_sd_Text)});
+										facility.addSkillInQualitySkillMap(allocatedTaskNameList.get(column-2), Double.valueOf(qualitySkillText));
+									}
+									redrawAllTableForFacility();
+									text.dispose();
+								} else if(e.keyCode==SWT.ESC){
+									text.dispose();
+								}
+							}
+							
+							@Override
+							public void keyReleased(KeyEvent e) {}
+						});
+						facilityTableEditor.setEditor (text, item, i);
+						text.setFocus();
+						text.selectAll();
+					}
+				}
+			}
+		});
+		
+		addFacilityButton = new Button(parent,SWT.PUSH);
+		addFacilityButton.setText("ADD");
+		addFacilityButton.setEnabled(true);
+		addFacilityButton.addSelectionListener(new SelectionAdapter(){
+			public void widgetSelected(SelectionEvent e){
+				InputSimpleTextDialog dialog = new InputSimpleTextDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell());
+				dialog.setTitleAndMessage("Add facility", "Please input the name of new facility");
+				if(dialog.open()==0){
+					String name = dialog.getTextString();
+					FacilityElement member = new FacilityElement();
+					member.setName(name);
+					member.setCost(0);
+					((FacilityNode) selectedModel).addFacility(member);
+					redrawAllTableForFacility();
+				}
+			}
+		});
+		FormData addFacilityButtonFD = new FormData();
+		addFacilityButtonFD.top= new FormAttachment(facilityNameLabel,9);
+		addFacilityButtonFD.left= new FormAttachment(facilityTableLabel,10);
+		addFacilityButton.setLayoutData(addFacilityButtonFD);
+		
+		deleteFacilityButton = new Button(parent,SWT.PUSH);
+		deleteFacilityButton.setText("DELETE");
+		deleteFacilityButton.setEnabled(true);
+		deleteFacilityButton.addSelectionListener(new SelectionAdapter(){
+			public void widgetSelected(SelectionEvent e){
+				if(((FacilityNode) selectedModel).getFacilityList().size()==0) return;
+				List<String> memberNameList = ((FacilityNode) selectedModel).getFacilityNameList();
+				SelectSimpleDataDialog dialog = new SelectSimpleDataDialog((PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell()));
+				dialog.setTitleAndMessage("Delete facility", "Please select deleting facilities");
+				dialog.setItemList(memberNameList);
+				if(dialog.open()==0){
+					List<Integer> selectedItemNumber = dialog.getSelectedItemNumber();
+					for(int i=0;i<selectedItemNumber.size();i++){
+						((FacilityNode) selectedModel).deleteFacility(selectedItemNumber.get(i));
+					}
+					redrawAllTableForTeam();
+				}
+			}
+		});
+		FormData deleteFacilityButtonFD = new FormData();
+		deleteFacilityButtonFD.top= new FormAttachment(facilityNameLabel,9);
+		deleteFacilityButtonFD.left= new FormAttachment(addFacilityButton,10);
+		deleteFacilityButton.setLayoutData(deleteFacilityButtonFD);
+
 		///////////////////////////////////////////////////////////////////////////
 		
 		
@@ -1065,7 +1155,9 @@ public class SelectedModelViewPart extends ViewPart {
 	 */
 	public void redrawAllTableForTeam(){
 		redrawWorkerTable();
-		//redrawFacilityTable();
+	}
+	public void redrawAllTableForFacility() {
+		redrawFacilityTable();
 	}
 	
 	/**
@@ -1135,7 +1227,6 @@ public class SelectedModelViewPart extends ViewPart {
 	/**
 	 * Redraw facilityTable
 	 */
-	@SuppressWarnings("unused")
 	private void redrawFacilityTable(){
 		//Initialize
 		while ( facilityTable.getColumnCount() > 0 ) {
@@ -1144,50 +1235,51 @@ public class SelectedModelViewPart extends ViewPart {
 		while ( facilityTable.getItemCount() > 0 ) {
 			facilityTable.getItems()[ 0 ].dispose();
 		}
-		
+
 		//Column setting
-		List<String> teamSkillNameList = ((TeamNode) selectedModel).getNameListOfAllocatedTasks();
+		List<String> facilitySkillNameList = ((FacilityNode) selectedModel).getNameListOfAllocatedTasks();
 		TableColumn column = new TableColumn(facilityTable,SWT.NONE);
 		column.setText("Name");
 		column.setWidth(60);
-		
+
 		column = new TableColumn(facilityTable,SWT.NONE);
 		column.setText("Cost");
 		column.setWidth(60);
-		
-		for (int i=0;i<teamSkillNameList.size();i++) {
+
+		for (int i=0;i<facilitySkillNameList.size();i++) {
 			column = new TableColumn(facilityTable,SWT.NONE);
-			column.setText(teamSkillNameList.get(i));
+			column.setText(facilitySkillNameList.get(i));
 			column.setWidth(60);
 		}
-		
+
 		//item setting
-		List<FacilityElement> memberList = ((TeamNode) selectedModel).getFacilityList();
+		List<FacilityElement> memberList = ((FacilityNode) selectedModel).getFacilityList();
 		for(int i=0;i<memberList.size();i++){
 			TableItem item = new TableItem(facilityTable,SWT.NONE);
 			FacilityElement member = memberList.get(i);
 			item.setText(0, member.getName());
 			item.setText(1, String.valueOf(member.getCost()));
-			for(int j=0;j<teamSkillNameList.size();j++){
-				String text = "/";
-				
-				// skill of work amount
-				if(member.getWorkAmountSkillMap().get(teamSkillNameList.get(j)) != null){
-					text = String.valueOf(member.getWorkAmountSkillMap().get(teamSkillNameList.get(j))) + text;
+			for(int j=0;j<facilitySkillNameList.size();j++){
+				String text = "";
+				String delimiter = "/";
+
+				// skill of work amount (mean)
+				if(member.getWorkAmountSkillMap().get(facilitySkillNameList.get(j)) != null){
+					text = String.valueOf(member.getWorkAmountSkillMap().get(facilitySkillNameList.get(j))[0]) + delimiter;
 				}else{
-					text = "0.0" + text;
+					text = "0.0" + delimiter;
 				}
-				
+
 				// skill of work amount (standard deviation)
-				if(member.getWorkAmountSkillMap().get(teamSkillNameList.get(j)) != null){
-					text = String.valueOf(member.getWorkAmountSkillMap().get(teamSkillNameList.get(j))[1]) + text;
+				if(member.getWorkAmountSkillMap().get(facilitySkillNameList.get(j)) != null){
+					text = text + String.valueOf(member.getWorkAmountSkillMap().get(facilitySkillNameList.get(j))[1]) + delimiter;
 				}else{
-					text = "0.0" + text;
+					text = text + "0.0" + delimiter;
 				}
-				
+
 				// skill of quality
-				if(member.getQualitySkillMap().get(teamSkillNameList.get(j)) != null){
-					text = text + String.valueOf(member.getQualitySkillMap().get(teamSkillNameList.get(j)));
+				if(member.getQualitySkillMap().get(facilitySkillNameList.get(j)) != null){
+					text = text + String.valueOf(member.getQualitySkillMap().get(facilitySkillNameList.get(j)));
 				}else{
 					text = text + "0.0";
 				}

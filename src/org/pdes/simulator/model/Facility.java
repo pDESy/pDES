@@ -30,6 +30,7 @@ package org.pdes.simulator.model;
 
 import org.pdes.rcp.model.FacilityElement;
 import org.pdes.simulator.model.base.BaseFacility;
+import org.pdes.simulator.model.base.BaseFacilityGroup;
 import org.pdes.simulator.model.base.BaseTeam;
 
 /**
@@ -42,8 +43,8 @@ public class Facility extends BaseFacility {
 	 * @param facilityElement
 	 * @param team
 	 */
-	public Facility(FacilityElement facilityElement, BaseTeam team) {
-		super(facilityElement, team);
+	public Facility(FacilityElement facilityElement, BaseFacilityGroup group) {
+		super(facilityElement, group);
 		// TODO Auto-generated constructor stub
 	}
 

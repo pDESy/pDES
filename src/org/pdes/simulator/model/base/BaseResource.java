@@ -41,7 +41,7 @@ import org.pdes.rcp.model.base.ResourceElement;
  * @author Taiga Mitsuyuki <mitsuyuki@sys.t.u-tokyo.ac.jp>
  *
  */
-public class BaseResource {
+public abstract class BaseResource {
 	
 	protected enum ResourceState {
 		FREE,
@@ -55,7 +55,7 @@ public class BaseResource {
 	protected final double costPerTime;
 	protected Map<String, Double[]> workAmountSkillMap; // skill map of work amount <taskname, skillpoint_mean, skillpoint_standard_deviation>
 	protected Map<String, Double> qualitySkillMap; // skill map of quality <taskname, skill point>
-	protected BaseTeam team;
+	
 	
 	// Changeable variable on simulation
 	protected ResourceState state;
@@ -71,14 +71,13 @@ public class BaseResource {
 	 * @param resourceElement
 	 * @param team
 	 */
-	public BaseResource(ResourceElement resourceElement, BaseTeam team) {
+	public BaseResource(ResourceElement resourceElement) {
 		this.id = UUID.randomUUID().toString();
 		this.nodeId = resourceElement.getId();
 		this.name = resourceElement.getName();
 		this.costPerTime = resourceElement.getCost();
 		this.workAmountSkillMap = resourceElement.getWorkAmountSkillMap();
 		this.qualitySkillMap = resourceElement.getQualitySkillMap();
-		this.team = team;
 	}
 	
 	/**
@@ -134,9 +133,7 @@ public class BaseResource {
 	 * @param task
 	 * @return
 	 */
-	public boolean hasSkill(BaseTask task) {
-		return (task.getAllocatedTeamList().stream().anyMatch(t -> t.equals(team)) && workAmountSkillMap.containsKey(task.getName()) && workAmountSkillMap.get(task.getName())[0] > 0.0);
-	}
+	abstract public boolean hasSkill(BaseTask task);
 	
 	/**
 	 * Get the work amount skill point of "task".
@@ -253,23 +250,6 @@ public class BaseResource {
 	public Map<String, Double> getQualitySkillMap() {
 		return qualitySkillMap;
 	}
-
-	/**
-	 * Get the team which has this Resource.
-	 * @return the team
-	 */
-	public BaseTeam getTeam() {
-		return team;
-	}
-
-	/**
-	 * Set the team which has this Resource.
-	 * @param team the team to set
-	 */
-	public void setTeam(BaseTeam team) {
-		this.team = team;
-	}
-
 	/**
 	 * Get total cost.
 	 * @return the totalCost

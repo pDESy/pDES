@@ -40,6 +40,7 @@ public class FigureConstants {
 	public static final String TASK_IMAGE_PATH = "icons/task.jpg";
 	public static final String TEAM_IMAGE_PATH = "icons/team.jpg";
 	public static final String WORKFLOW_IMAGE_PATH = "icons/workflow.png";
+	public static final String FACILITY_IMAGE_PATH = "icons/facility.png";
 	public static final String EDITOR_IMAGE_PATH = "icons/editor.png";
 	public static final String DETAIL_IMAGE_PATH = "icons/detail.png";
 	

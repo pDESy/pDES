@@ -60,6 +60,7 @@ import org.pdes.rcp.controller.editpart.ProjectEditorEditPartFactory;
 import org.pdes.rcp.model.AllocationLink;
 import org.pdes.rcp.model.ComponentHierarchyLink;
 import org.pdes.rcp.model.ComponentNode;
+import org.pdes.rcp.model.FacilityNode;
 import org.pdes.rcp.model.TargetComponentLink;
 import org.pdes.rcp.model.ProjectDiagram;
 import org.pdes.rcp.model.SubWorkflowNode;
@@ -133,6 +134,14 @@ public class ProjectEditor extends DiagramEditor {
 						Activator.PLUGIN_ID, FigureConstants.TASK_IMAGE_PATH), Activator
 						.imageDescriptorFromPlugin(Activator.PLUGIN_ID,
 								FigureConstants.TASK_IMAGE_PATH)); 
+		entry.setToolProperty(AbstractTool.PROPERTY_UNLOAD_WHEN_FINISHED, Boolean.FALSE);
+		drawer.add(entry);
+		
+		entry = new CreationToolEntry("FacilityGroup", "Make facility group", new SimpleFactory(
+		FacilityNode.class), Activator.imageDescriptorFromPlugin(
+				Activator.PLUGIN_ID, FigureConstants.FACILITY_IMAGE_PATH), Activator
+				.imageDescriptorFromPlugin(Activator.PLUGIN_ID,
+						FigureConstants.FACILITY_IMAGE_PATH)); 
 		entry.setToolProperty(AbstractTool.PROPERTY_UNLOAD_WHEN_FINISHED, Boolean.FALSE);
 		drawer.add(entry);
 		
@@ -305,6 +314,8 @@ public class ProjectEditor extends DiagramEditor {
 				AbstractModel model = (AbstractModel)selectedPart.getModel();
 				if(model instanceof TeamNode){
 					selectedModelView.readSelectedModel((TeamNode) model);
+				}else if(model instanceof FacilityNode) {
+					selectedModelView.readSelectedModel((FacilityNode) model);
 				}else if(model instanceof TaskNode){
 					selectedModelView.readSelectedModel((TaskNode) model);
 				}else if(model instanceof SubWorkflowNode){
